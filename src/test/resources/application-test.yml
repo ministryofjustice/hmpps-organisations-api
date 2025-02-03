@@ -11,7 +11,7 @@ spring:
     password: organisations
 
   flyway:
-    locations: classpath:/migrations/common,classpath:/migrations/dev
+    locations: classpath:/migrations/common,classpath:/migrations/test
 
 management.endpoint:
   health.cache.time-to-live: 0
