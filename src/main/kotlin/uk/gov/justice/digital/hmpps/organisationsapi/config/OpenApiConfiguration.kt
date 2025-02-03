@@ -1,5 +1,8 @@
 package uk.gov.justice.digital.hmpps.organisationsapi.config
 
+import com.fasterxml.jackson.annotation.JsonInclude
+import com.fasterxml.jackson.databind.DeserializationFeature
+import io.swagger.v3.core.util.PrimitiveType
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
 import io.swagger.v3.oas.models.info.Contact
@@ -8,51 +11,69 @@ import io.swagger.v3.oas.models.security.SecurityRequirement
 import io.swagger.v3.oas.models.security.SecurityScheme
 import io.swagger.v3.oas.models.servers.Server
 import io.swagger.v3.oas.models.tags.Tag
+import jakarta.annotation.PostConstruct
+import org.hibernate.internal.util.collections.CollectionHelper.listOf
+import org.openapitools.jackson.nullable.JsonNullableModule
+import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer
 import org.springframework.boot.info.BuildProperties
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
 
 @Configuration
 class OpenApiConfiguration(buildProperties: BuildProperties) {
   private val version: String = buildProperties.version
 
   @Bean
-  fun customOpenAPI(): OpenAPI = OpenAPI()
-    .servers(
-      listOf(
-        Server().url("https://organisations-api-dev.hmpps.service.justice.gov.uk").description("Development"),
-        Server().url("https://organisations-api-preprod.hmpps.service.justice.gov.uk").description("Pre-Production"),
-        Server().url("https://organisations-api.hmpps.service.justice.gov.uk").description("Production"),
-        Server().url("http://localhost:8080").description("Local"),
-      ),
-    )
-    .tags(
-      listOf(
-        // TODO: Remove the Popular and Examples tag and start adding your own tags to group your resources
-        Tag().name("Popular")
-          .description("The most popular endpoints. Look here first when deciding which endpoint to use."),
-        Tag().name("Examples").description("Endpoints for searching for a prisoner within a prison"),
+  fun customOpenAPI(buildProperties: BuildProperties): OpenAPI? = OpenAPI()
+    .components(
+      Components().addSecuritySchemes(
+        "bearer-jwt",
+        SecurityScheme()
+          .type(SecurityScheme.Type.HTTP)
+          .scheme("bearer")
+          .bearerFormat("JWT")
+          .`in`(SecurityScheme.In.HEADER)
+          .name("Authorization"),
       ),
     )
     .info(
-      Info().title("HMPPS Organisations Api").version(version)
-        .contact(Contact().name("HMPPS Digital Studio").email("feedback@digital.justice.gov.uk")),
+      Info()
+        .title("Contacts API")
+        .version(version)
+        .description("API for the management of organisations and their contact details.")
+        .contact(
+          Contact()
+            .name("HMPPS Digital Studio")
+            .email("feedback@digital.justice.gov.uk"),
+        ),
     )
-    // TODO: Remove the default security schema and start adding your own schemas and roles to describe your
-    // service authorisation requirements
-    .components(
-      Components().addSecuritySchemes(
-        "organisations-api-ui-role",
-        SecurityScheme().addBearerJwtRequirement("ROLE_TEMPLATE_KOTLIN__UI"),
+    .tags(
+      listOf(
+        Tag().name("Organisations").description("Managing organisations"),
       ),
     )
-    .addSecurityItem(SecurityRequirement().addList("organisations-api-ui-role", listOf("read")))
-}
+    .addSecurityItem(SecurityRequirement().addList("bearer-jwt", listOf("read", "write")))
+    .servers(
+      listOf(
+        Server().url("/").description("Default - this environment"),
+        Server().url("https://organisations-api-dev.hmpps.service.justice.gov.uk").description("Development"),
+        Server().url("https://organisations-api-preprod.hmpps.service.justice.gov.uk").description("Pre-production"),
+        Server().url("https://organisations-api.hmpps.service.justice.gov.uk").description("Production"),
+      ),
+    )
 
-private fun SecurityScheme.addBearerJwtRequirement(role: String): SecurityScheme =
-  type(SecurityScheme.Type.HTTP)
-    .scheme("bearer")
-    .bearerFormat("JWT")
-    .`in`(SecurityScheme.In.HEADER)
-    .name("Authorization")
-    .description("A HMPPS Auth access token with the `$role` role.")
+  @PostConstruct
+  fun enableLocalTimePrimitiveType() {
+    PrimitiveType.enablePartialTime()
+  }
+
+  @Bean
+  fun jsonNullableModule() = JsonNullableModule()
+
+  @Bean
+  fun jsonCustomizer(): Jackson2ObjectMapperBuilderCustomizer = Jackson2ObjectMapperBuilderCustomizer { builder: Jackson2ObjectMapperBuilder ->
+    builder.serializationInclusion(JsonInclude.Include.NON_NULL)
+    builder.featuresToEnable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+  }
+}
