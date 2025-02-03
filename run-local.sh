@@ -1,5 +1,5 @@
 #
-# This script is used to run the Book a video link API locally.
+# This script is used to run the Organisations API locally.
 #
 # It runs with a combination of properties from the default spring profile (in application.yaml) and supplemented
 # with the -local profile (from application-local.yml). The latter overrides some of the defaults.

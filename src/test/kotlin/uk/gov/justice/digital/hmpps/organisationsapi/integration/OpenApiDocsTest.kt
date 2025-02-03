@@ -86,7 +86,7 @@ class OpenApiDocsTest : IntegrationTestBase() {
       .jsonPath("$.components.securitySchemes.$key.scheme").isEqualTo("bearer")
       .jsonPath("$.components.securitySchemes.$key.bearerFormat").isEqualTo("JWT")
 
-    // assertThat(body).toString().isNotEmpty()
+    // TODO: Can add more checks here as more endpoints and documentation is added
   }
 
   @Test

@@ -39,7 +39,7 @@ class OpenApiConfiguration(buildProperties: BuildProperties) {
     )
     .info(
       Info()
-        .title("Contacts API")
+        .title("Organisations API")
         .version(version)
         .description("API for the management of organisations and their contact details.")
         .contact(
