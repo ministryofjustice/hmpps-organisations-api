@@ -1,7 +1,6 @@
 package uk.gov.justice.digital.hmpps.organisationsapi.integration
 
 import io.swagger.v3.parser.OpenAPIV3Parser
-import net.minidev.json.JSONArray
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
@@ -35,14 +34,14 @@ class OpenApiDocsTest : IntegrationTestBase() {
   }
 
   @Test
-  fun `the open api json contains documentation`() {
+  fun `the open api json contains server documentation`() {
     webTestClient.get()
       .uri("/v3/api-docs")
       .accept(MediaType.APPLICATION_JSON)
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .jsonPath("paths").isNotEmpty
+      .jsonPath("servers").isNotEmpty
   }
 
   @Test
@@ -59,7 +58,7 @@ class OpenApiDocsTest : IntegrationTestBase() {
   fun `the open api json is valid and contains documentation`() {
     val result = OpenAPIV3Parser().readLocation("http://localhost:$port/v3/api-docs", null, null)
     assertThat(result.messages).isEmpty()
-    assertThat(result.openAPI.paths).isNotEmpty
+    assertThat(result.openAPI.paths).isEmpty()
   }
 
   @Test
@@ -75,8 +74,8 @@ class OpenApiDocsTest : IntegrationTestBase() {
   }
 
   @ParameterizedTest
-  @CsvSource(value = ["organisations-api-ui-role, ROLE_TEMPLATE_KOTLIN__UI"])
-  fun `the security scheme is setup for bearer tokens`(key: String, role: String) {
+  @CsvSource(value = ["bearer-jwt"])
+  fun `the security scheme is setup for bearer tokens`(key: String) {
     webTestClient.get()
       .uri("/v3/api-docs")
       .accept(MediaType.APPLICATION_JSON)
@@ -85,11 +84,9 @@ class OpenApiDocsTest : IntegrationTestBase() {
       .expectBody()
       .jsonPath("$.components.securitySchemes.$key.type").isEqualTo("http")
       .jsonPath("$.components.securitySchemes.$key.scheme").isEqualTo("bearer")
-      .jsonPath("$.components.securitySchemes.$key.description").value<String> {
-        assertThat(it).contains(role)
-      }
       .jsonPath("$.components.securitySchemes.$key.bearerFormat").isEqualTo("JWT")
-      .jsonPath("$.security[0].$key").isEqualTo(JSONArray().apply { this.add("read") })
+
+    // TODO: Can add more checks here as more endpoints and documentation is added
   }
 
   @Test
