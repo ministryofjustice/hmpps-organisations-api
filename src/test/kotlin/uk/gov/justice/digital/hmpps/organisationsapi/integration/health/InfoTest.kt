@@ -2,11 +2,11 @@ package uk.gov.justice.digital.hmpps.organisationsapi.integration.health
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.organisationsapi.integration.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.organisationsapi.integration.PostgresIntegrationTestBase
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-class InfoTest : IntegrationTestBase() {
+class InfoTest : PostgresIntegrationTestBase() {
 
   @Test
   fun `Info page is accessible`() {
