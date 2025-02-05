@@ -73,8 +73,6 @@ class OpenApiDocsTest : PostgresIntegrationTestBase() {
       .jsonPath("$.components.securitySchemes.$key.type").isEqualTo("http")
       .jsonPath("$.components.securitySchemes.$key.scheme").isEqualTo("bearer")
       .jsonPath("$.components.securitySchemes.$key.bearerFormat").isEqualTo("JWT")
-
-    // TODO: Can add more checks here as more endpoints and documentation is added
   }
 
   @Test

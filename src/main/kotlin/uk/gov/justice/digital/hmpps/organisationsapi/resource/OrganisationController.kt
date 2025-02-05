@@ -89,7 +89,7 @@ class OrganisationController(private val organisationFacade: OrganisationFacade)
       ),
     ],
   )
-  @PreAuthorize("hasAnyRole('ROLE_ORGANISATIONS__R', 'ROLE_ORGANISATIONS__RW')")
+  @PreAuthorize("hasAnyRole('ROLE_ORGANISATIONS__RW')")
   fun createOrganisation(
     @Valid @RequestBody request: CreateOrganisationRequest,
   ): ResponseEntity<OrganisationDetails> = organisationFacade.create(request)

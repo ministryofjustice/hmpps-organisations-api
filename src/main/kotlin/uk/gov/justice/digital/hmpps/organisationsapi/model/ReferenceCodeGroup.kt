@@ -12,4 +12,5 @@ enum class ReferenceCodeGroup(val displayName: String, val isDocumented: Boolean
   ORGANISATION_TYPE("organisation type", true),
   ORG_ADDRESS_SPECIAL_NEEDS("organisation address special needs code", true),
   TEST_TYPE("test type", false),
+  TEST_SEQ_TYPE("test seq type", false),
 }
