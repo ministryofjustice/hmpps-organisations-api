@@ -50,7 +50,9 @@ class OpenApiConfiguration(buildProperties: BuildProperties) {
     )
     .tags(
       listOf(
-        Tag().name("Organisations").description("Managing organisations"),
+        Tag().name("Migration and synchronisation").description("Migration and synchronisation endpoints"),
+        Tag().name("Reference data").description("Reference data endpoints"),
+        Tag().name("Organisations").description("Organisation endpoints"),
       ),
     )
     .addSecurityItem(SecurityRequirement().addList("bearer-jwt", listOf("read", "write")))

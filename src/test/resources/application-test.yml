@@ -5,11 +5,6 @@ spring:
   jpa:
     show-sql: true
 
-  datasource:
-    url: 'jdbc:postgresql://localhost:5432/organisations-db'
-    username: organisations
-    password: organisations
-
   flyway:
     locations: classpath:/migrations/common,classpath:/migrations/test
 
@@ -21,3 +16,11 @@ api:
   base:
     url:
       hmpps-auth: "http://localhost:8090/auth"
+
+feature:
+  event:
+    organisations-api:
+      organisation:
+        created: true
+        updated: true
+        deleted: true

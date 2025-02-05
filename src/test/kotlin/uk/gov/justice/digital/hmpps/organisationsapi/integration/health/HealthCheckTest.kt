@@ -1,9 +1,9 @@
 package uk.gov.justice.digital.hmpps.organisationsapi.integration.health
 
 import org.junit.jupiter.api.Test
-import uk.gov.justice.digital.hmpps.organisationsapi.integration.IntegrationTestBase
+import uk.gov.justice.digital.hmpps.organisationsapi.integration.PostgresIntegrationTestBase
 
-class HealthCheckTest : IntegrationTestBase() {
+class HealthCheckTest : PostgresIntegrationTestBase() {
 
   @Test
   fun `Health page reports ok`() {

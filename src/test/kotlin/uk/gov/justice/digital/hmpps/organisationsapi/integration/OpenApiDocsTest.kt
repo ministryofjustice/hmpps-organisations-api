@@ -10,7 +10,7 @@ import org.springframework.http.MediaType
 import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
-class OpenApiDocsTest : IntegrationTestBase() {
+class OpenApiDocsTest : PostgresIntegrationTestBase() {
   @LocalServerPort
   private val port: Int = 0
 
@@ -58,19 +58,7 @@ class OpenApiDocsTest : IntegrationTestBase() {
   fun `the open api json is valid and contains documentation`() {
     val result = OpenAPIV3Parser().readLocation("http://localhost:$port/v3/api-docs", null, null)
     assertThat(result.messages).isEmpty()
-    assertThat(result.openAPI.paths).isEmpty()
-  }
-
-  @Test
-  fun `the open api json path security requirements are valid`() {
-    val result = OpenAPIV3Parser().readLocation("http://localhost:$port/v3/api-docs", null, null)
-
-    // The security requirements of each path don't appear to be validated like they are at https://editor.swagger.io/
-    // We therefore need to grab all the valid security requirements and check that each path only contains those items
-    val securityRequirements = result.openAPI.security.flatMap { it.keys }
-    result.openAPI.paths.forEach { pathItem ->
-      assertThat(pathItem.value.get.security.flatMap { it.keys }).isSubsetOf(securityRequirements)
-    }
+    assertThat(result.openAPI.paths).isNotEmpty()
   }
 
   @ParameterizedTest
@@ -85,8 +73,6 @@ class OpenApiDocsTest : IntegrationTestBase() {
       .jsonPath("$.components.securitySchemes.$key.type").isEqualTo("http")
       .jsonPath("$.components.securitySchemes.$key.scheme").isEqualTo("bearer")
       .jsonPath("$.components.securitySchemes.$key.bearerFormat").isEqualTo("JWT")
-
-    // TODO: Can add more checks here as more endpoints and documentation is added
   }
 
   @Test

@@ -8,14 +8,14 @@ import org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDO
 import org.springframework.context.annotation.Import
 import org.springframework.http.HttpHeaders
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.DynamicPropertyRegistry
-import org.springframework.test.context.DynamicPropertySource
 import org.springframework.test.web.reactive.server.WebTestClient
-import uk.gov.justice.digital.hmpps.organisationsapi.integration.containers.PostgresContainer
+import uk.gov.justice.digital.hmpps.organisationsapi.entity.OrganisationWithFixedIdEntity
 import uk.gov.justice.digital.hmpps.organisationsapi.integration.helper.TestAPIClient
 import uk.gov.justice.digital.hmpps.organisationsapi.integration.wiremock.HmppsAuthApiExtension
 import uk.gov.justice.digital.hmpps.organisationsapi.integration.wiremock.HmppsAuthApiExtension.Companion.hmppsAuth
+import uk.gov.justice.digital.hmpps.organisationsapi.repository.OrganisationWithFixedIdRepository
 import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
+import java.time.LocalDateTime
 
 @ExtendWith(HmppsAuthApiExtension::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -32,8 +32,8 @@ abstract class IntegrationTestBase {
   @Autowired
   protected lateinit var stubEvents: StubOutboundEventsPublisher
 
-  // @Autowired
-  // private lateinit var organisationRepository: OrganisationWithFixedIdRepository
+  @Autowired
+  private lateinit var organisationRepository: OrganisationWithFixedIdRepository
 
   protected lateinit var testAPIClient: TestAPIClient
 
@@ -53,7 +53,6 @@ abstract class IntegrationTestBase {
     hmppsAuth.stubHealthPing(status)
   }
 
-  /*
   fun stubOrganisation(id: Long) {
     val entity = OrganisationWithFixedIdEntity(
       id,
@@ -70,20 +69,5 @@ abstract class IntegrationTestBase {
       updatedTime = null,
     )
     organisationRepository.saveAndFlush(entity)
-  }
-   */
-
-  companion object {
-    private val pgContainer = PostgresContainer.instance
-
-    @JvmStatic
-    @DynamicPropertySource
-    fun properties(registry: DynamicPropertyRegistry) {
-      pgContainer?.run {
-        registry.add("spring.datasource.url", pgContainer::getJdbcUrl)
-        registry.add("spring.datasource.username", pgContainer::getUsername)
-        registry.add("spring.datasource.password", pgContainer::getPassword)
-      }
-    }
   }
 }
