@@ -27,6 +27,7 @@ import uk.gov.justice.digital.hmpps.organisationsapi.facade.OrganisationFacade
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.CreateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.OrganisationSearchRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.OrganisationDetails
+import uk.gov.justice.digital.hmpps.organisationsapi.model.response.OrganisationSummary
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.OrganisationSummaryResultItemPage
 import uk.gov.justice.digital.hmpps.organisationsapi.swagger.AuthApiResponses
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
@@ -63,6 +64,33 @@ class OrganisationController(private val organisationFacade: OrganisationFacade)
   )
   @PreAuthorize("hasAnyRole('ROLE_ORGANISATIONS__R', 'ROLE_ORGANISATIONS__RW')")
   fun getOrganisationById(@PathVariable organisationId: Long): OrganisationDetails = organisationFacade.getOrganisationById(organisationId)
+
+  @GetMapping("/{organisationId}/summary")
+  @Operation(
+    summary = "Get organisation summary",
+    description = "Gets a summary of an organisation by their id. Includes primary address and any business phone number for that address.",
+    security = [SecurityRequirement(name = "bearer")],
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "Found the organisation",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = OrganisationSummary::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "No organisation with that id could be found",
+      ),
+    ],
+  )
+  @PreAuthorize("hasAnyRole('ROLE_ORGANISATIONS__R', 'ROLE_ORGANISATIONS__RW')")
+  fun getOrganisationSummaryById(@PathVariable organisationId: Long): OrganisationSummary = organisationFacade.getOrganisationSummaryById(organisationId)
 
   @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
   @Operation(

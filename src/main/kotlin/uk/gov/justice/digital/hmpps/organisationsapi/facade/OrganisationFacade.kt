@@ -25,5 +25,7 @@ class OrganisationFacade(
 
   fun getOrganisationById(organisationId: Long): OrganisationDetails = organisationService.getOrganisationById(organisationId)
 
+  fun getOrganisationSummaryById(organisationId: Long): OrganisationSummary = organisationService.getOrganisationSummaryById(organisationId)
+
   fun search(request: OrganisationSearchRequest, pageable: Pageable): Page<OrganisationSummary> = organisationService.search(request, pageable)
 }

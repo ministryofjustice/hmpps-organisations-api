@@ -27,6 +27,17 @@ class TestAPIClient(private val webTestClient: WebTestClient, private val jwtAut
     .expectBody(OrganisationDetails::class.java)
     .returnResult().responseBody!!
 
+  fun getOrganisationSummary(id: Long, role: String = "ROLE_ORGANISATIONS__R"): OrganisationSummary = webTestClient.get()
+    .uri("/organisation/$id/summary")
+    .accept(MediaType.APPLICATION_JSON)
+    .headers(setAuthorisation(roles = listOf(role)))
+    .exchange()
+    .expectStatus()
+    .isOk
+    .expectHeader().contentType(MediaType.APPLICATION_JSON)
+    .expectBody(OrganisationSummary::class.java)
+    .returnResult().responseBody!!
+
   fun searchOrganisations(
     request: OrganisationSearchRequest,
     page: Long? = null,
