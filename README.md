@@ -37,7 +37,7 @@ SYSTEM_CLIENT_ID=<system.client.id>
 SYSTEM_CLIENT_SECRET=<system.client.secret>
 ```
 
-### Run a docker database image
+### Run a docker Postsgresql database container
 
 ```bash
 docker-compose pull && docker-compose up -d
