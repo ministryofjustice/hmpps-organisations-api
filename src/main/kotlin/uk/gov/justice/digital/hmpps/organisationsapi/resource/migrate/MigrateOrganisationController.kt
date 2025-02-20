@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.migrate.MigrateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.migrate.MigrateOrganisationResponse
-import uk.gov.justice.digital.hmpps.organisationsapi.service.migrate.OrganisationMigrationService
+import uk.gov.justice.digital.hmpps.organisationsapi.service.migrate.MigrateOrganisationService
 import uk.gov.justice.digital.hmpps.organisationsapi.swagger.AuthApiResponses
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
@@ -24,7 +24,7 @@ import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 @RestController
 @RequestMapping(value = ["migrate/organisation"], produces = [MediaType.APPLICATION_JSON_VALUE])
 @AuthApiResponses
-class MigrateOrganisationController(val migrationService: OrganisationMigrationService) {
+class MigrateOrganisationController(val migrationService: MigrateOrganisationService) {
 
   @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
   @Operation(

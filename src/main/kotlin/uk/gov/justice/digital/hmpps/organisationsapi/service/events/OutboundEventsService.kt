@@ -16,6 +16,7 @@ class OutboundEventsService(
 
   fun send(
     outboundEvent: OutboundEvent,
+    organisationId: Long,
     identifier: Long,
     source: Source = Source.DPS,
   ) {
@@ -27,7 +28,7 @@ class OutboundEventsService(
         OutboundEvent.ORGANISATION_UPDATED,
         OutboundEvent.ORGANISATION_DELETED,
         -> {
-          sendSafely(outboundEvent, OrganisationInfo(identifier, source))
+          sendSafely(outboundEvent, OrganisationInfo(organisationId, identifier, source))
         }
       }
     } else {

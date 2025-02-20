@@ -19,6 +19,7 @@ class OrganisationFacade(
   fun create(request: CreateOrganisationRequest): OrganisationDetails = organisationService.create(request).also {
     outboundEventsService.send(
       outboundEvent = OutboundEvent.ORGANISATION_CREATED,
+      organisationId = it.organisationId,
       identifier = it.organisationId,
     )
   }
