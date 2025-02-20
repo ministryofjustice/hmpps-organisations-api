@@ -30,7 +30,7 @@ import uk.gov.justice.digital.hmpps.organisationsapi.repository.OrganisationWith
 import java.time.LocalDateTime
 
 @Service
-class OrganisationMigrationService(
+class MigrateOrganisationService(
   private val organisationRepository: OrganisationWithFixedIdRepository,
   private val organisationTypeRepository: OrganisationTypeRepository,
   private val organisationPhoneRepository: OrganisationPhoneRepository,

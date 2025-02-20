@@ -56,7 +56,7 @@ data class OutboundHMPPSDomainEvent(
  * All inherit the base class AdditionalInformation and extend it to contain the required fields.
  * The additional information is mapped into JSON by the ObjectMapper as part of the event body.
  */
-data class OrganisationInfo(val organisationId: Long, override val source: Source = Source.DPS) : AdditionalInformation(source)
+data class OrganisationInfo(val organisationId: Long, val identifier: Long, override val source: Source = Source.DPS) : AdditionalInformation(source)
 
 /**
  * The event source.
