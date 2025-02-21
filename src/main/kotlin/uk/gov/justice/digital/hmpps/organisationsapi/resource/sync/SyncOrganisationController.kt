@@ -27,7 +27,7 @@ import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncOrg
 import uk.gov.justice.digital.hmpps.organisationsapi.swagger.AuthApiResponses
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
-@Tag(name = "Sync & Migrate")
+@Tag(name = "Migration and synchronisation")
 @RestController
 @RequestMapping(value = ["sync"], produces = [MediaType.APPLICATION_JSON_VALUE])
 @AuthApiResponses
@@ -96,7 +96,7 @@ class SyncOrganisationController(val syncFacade: SyncFacade) {
   @PostMapping(path = ["/organisation"], produces = [MediaType.APPLICATION_JSON_VALUE])
   @ResponseBody
   @Operation(
-    summary = "Creates a new organisation",
+    summary = "Creates a new organisation with a specified ID",
     description = """
       Requires role: ROLE_ORGANISATIONS_MIGRATION.
       Used to create a new organisation.

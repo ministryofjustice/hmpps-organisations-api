@@ -23,6 +23,10 @@ generic-service:
     SERVER_PORT: "8080"
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.json
     DB_SSL_MODE: "verify-full"
+    FEATURE_EVENTS_SNS_ENABLED: true
+    FEATURE_EVENT_ORGANISATIONS_API_ORGANISATION_CREATED: true
+    FEATURE_EVENT_ORGANISATIONS_API_ORGANISATION_UPDATED: true
+    FEATURE_EVENT_ORGANISATIONS_API_ORGANISATION_DELETED: true
 
   # Pre-existing kubernetes secrets to load as environment variables in the deployment.
   # namespace_secrets:

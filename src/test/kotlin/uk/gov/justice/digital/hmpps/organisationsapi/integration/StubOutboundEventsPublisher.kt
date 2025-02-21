@@ -8,7 +8,9 @@ import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEven
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEventsPublisher
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundHMPPSDomainEvent
 
-class StubOutboundEventsPublisher(private val receivedEvents: MutableList<OutboundHMPPSDomainEvent> = mutableListOf()) : OutboundEventsPublisher {
+class StubOutboundEventsPublisher(
+  private val receivedEvents: MutableList<OutboundHMPPSDomainEvent> = mutableListOf(),
+) : OutboundEventsPublisher {
   companion object {
     private val logger = LoggerFactory.getLogger(this::class.java)
   }
