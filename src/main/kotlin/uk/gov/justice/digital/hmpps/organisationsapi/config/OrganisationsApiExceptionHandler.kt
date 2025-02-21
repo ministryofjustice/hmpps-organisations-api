@@ -6,6 +6,7 @@ import jakarta.validation.ValidationException
 import org.apache.commons.lang3.exception.ExceptionUtils
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus.BAD_REQUEST
+import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.INTERNAL_SERVER_ERROR
 import org.springframework.http.HttpStatus.NOT_FOUND
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.servlet.resource.NoResourceFoundException
 import uk.gov.justice.digital.hmpps.organisationsapi.exception.InvalidReferenceCodeGroupException
+import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.DuplicateOrganisationException
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 import java.time.format.DateTimeParseException
 
@@ -123,6 +125,17 @@ class OrganisationsApiExceptionHandler {
         userMessage = "Validation failure(s): ${
           e.allErrors.map { it.defaultMessage }.distinct().sorted().joinToString(System.lineSeparator())
         }",
+        developerMessage = e.message,
+      ),
+    )
+
+  @ExceptionHandler(DuplicateOrganisationException::class)
+  fun handleDuplicatePersonException(e: DuplicateOrganisationException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(CONFLICT)
+    .body(
+      ErrorResponse(
+        status = CONFLICT,
+        userMessage = e.message,
         developerMessage = e.message,
       ),
     )
