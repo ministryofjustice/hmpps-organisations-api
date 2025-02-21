@@ -130,7 +130,7 @@ class OrganisationsApiExceptionHandler {
     )
 
   @ExceptionHandler(DuplicateOrganisationException::class)
-  fun handleDuplicatePersonException(e: DuplicateOrganisationException): ResponseEntity<ErrorResponse> = ResponseEntity
+  fun handleDuplicateOrganisationException(e: DuplicateOrganisationException): ResponseEntity<ErrorResponse> = ResponseEntity
     .status(CONFLICT)
     .body(
       ErrorResponse(
