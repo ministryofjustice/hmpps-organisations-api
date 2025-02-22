@@ -10,20 +10,26 @@ import org.mockito.Mockito.verify
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateOrganisationRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreatePhoneRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateOrganisationRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdatePhoneRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncOrganisationResponse
+import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncPhoneResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEvent
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEventsService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.Source
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncOrganisationService
+import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncPhoneService
 import java.time.LocalDateTime
 
 class SyncFacadeTest {
   private val syncOrganisationService: SyncOrganisationService = mock()
+  private val syncPhoneService: SyncPhoneService = mock()
   private val outboundEventsService: OutboundEventsService = mock()
 
   private val facade = SyncFacade(
     syncOrganisationService,
+    syncPhoneService,
     outboundEventsService,
   )
 
@@ -162,6 +168,145 @@ class SyncFacadeTest {
       organisationName = "Some Organisation",
       vatNumber = "GB11111111",
       active = true,
+      updatedBy = "UPDATER",
+      updatedTime = LocalDateTime.now(),
+    )
+  }
+
+  @Nested
+  inner class SyncPhoneFacadeEvents {
+    @Test
+    fun `should send ORGANISATION_PHONE_CREATED domain event on create success`() {
+      val request = syncCreatePhoneRequest()
+      val response = syncPhoneResponse(1L)
+
+      whenever(syncPhoneService.createPhone(any())).thenReturn(response)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val result = facade.createPhone(request)
+
+      assertThat(result.organisationId).isEqualTo(request.organisationId)
+      assertThat(result.organisationPhoneId).isEqualTo(1L)
+
+      verify(syncPhoneService).createPhone(request)
+      verify(outboundEventsService).send(
+        outboundEvent = OutboundEvent.ORGANISATION_PHONE_CREATED,
+        organisationId = result.organisationId,
+        identifier = result.organisationPhoneId,
+        source = Source.NOMIS,
+      )
+    }
+
+    @Test
+    fun `should not send ORGANISATION_PHONE_CREATED domain event on create failure`() {
+      val request = syncCreatePhoneRequest()
+      val expectedException = RuntimeException("Bang!")
+
+      whenever(syncPhoneService.createPhone(any())).thenThrow(expectedException)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val exception = assertThrows<RuntimeException> {
+        facade.createPhone(request)
+      }
+
+      assertThat(exception.message).isEqualTo(expectedException.message)
+
+      verify(syncPhoneService).createPhone(request)
+      verify(outboundEventsService, never()).send(any(), any(), any(), any())
+    }
+
+    @Test
+    fun `should send ORGANISATION_PHONE_UPDATED domain event on update success`() {
+      val request = syncUpdatePhoneRequest()
+      val response = syncPhoneResponse(2L)
+
+      whenever(syncPhoneService.updatePhone(any(), any())).thenReturn(response)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val result = facade.updatePhone(2L, request)
+
+      verify(syncPhoneService).updatePhone(2L, request)
+      verify(outboundEventsService).send(
+        outboundEvent = OutboundEvent.ORGANISATION_PHONE_UPDATED,
+        organisationId = result.organisationId,
+        identifier = result.organisationPhoneId,
+        source = Source.NOMIS,
+      )
+    }
+
+    @Test
+    fun `should not send ORGANISATION_PHONE_UPDATED domain event on update failure`() {
+      val request = syncUpdatePhoneRequest()
+      val expectedException = RuntimeException("Bang!")
+
+      whenever(syncPhoneService.updatePhone(any(), any())).thenThrow(expectedException)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val exception = assertThrows<RuntimeException> {
+        facade.updatePhone(3L, request)
+      }
+
+      assertThat(exception.message).isEqualTo(expectedException.message)
+
+      verify(syncPhoneService).updatePhone(3L, request)
+      verify(outboundEventsService, never()).send(any(), any(), any(), any())
+    }
+
+    @Test
+    fun `should send ORGANISATION_PHONE_DELETED domain event on delete success`() {
+      val response = syncPhoneResponse(4L)
+      whenever(syncPhoneService.deletePhone(any())).thenReturn(response)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val result = facade.deletePhone(4L)
+
+      verify(syncPhoneService).deletePhone(4L)
+
+      verify(outboundEventsService).send(
+        outboundEvent = OutboundEvent.ORGANISATION_PHONE_DELETED,
+        organisationId = result.organisationId,
+        identifier = result.organisationPhoneId,
+        source = Source.NOMIS,
+      )
+    }
+
+    @Test
+    fun `should not send ORGANISATION_PHONE_DELETED on delete failure`() {
+      val expectedException = RuntimeException("Bang!")
+
+      whenever(syncPhoneService.deletePhone(any())).thenThrow(expectedException)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val exception = assertThrows<RuntimeException> {
+        facade.deletePhone(5L)
+      }
+
+      assertThat(exception.message).isEqualTo(expectedException.message)
+      verify(syncPhoneService).deletePhone(5L)
+      verify(outboundEventsService, never()).send(any(), any(), any(), any())
+    }
+
+    private fun syncCreatePhoneRequest() = SyncCreatePhoneRequest(
+      organisationId = 1L,
+      phoneType = "MOB",
+      phoneNumber = "07999 123456",
+      createdTime = LocalDateTime.now(),
+      createdBy = "CREATOR",
+    )
+
+    private fun syncPhoneResponse(organisationPhoneId: Long) = SyncPhoneResponse(
+      organisationId = 1L,
+      organisationPhoneId = organisationPhoneId,
+      phoneType = "MOB",
+      phoneNumber = "07999 123456",
+      createdBy = "CREATOR",
+      createdTime = LocalDateTime.now(),
+    )
+
+    private fun syncUpdatePhoneRequest() = SyncUpdatePhoneRequest(
+      organisationId = 1L,
+      phoneType = "HOME",
+      phoneNumber = "07999 654321",
       updatedBy = "UPDATER",
       updatedTime = LocalDateTime.now(),
     )

@@ -24,3 +24,7 @@ feature:
         created: true
         updated: true
         deleted: true
+      organisation-phone:
+        created: true
+        updated: true
+        deleted: true

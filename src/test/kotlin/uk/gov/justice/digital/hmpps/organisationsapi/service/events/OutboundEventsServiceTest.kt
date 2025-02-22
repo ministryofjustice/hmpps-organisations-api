@@ -68,6 +68,51 @@ class OutboundEventsServiceTest {
     )
   }
 
+  @Test
+  fun `phone number created event is sent to the events publisher`() {
+    featureSwitches.stub { on { isEnabled(OutboundEvent.ORGANISATION_PHONE_CREATED) } doReturn true }
+    outboundEventsService.send(OutboundEvent.ORGANISATION_PHONE_CREATED, 1L, 1L)
+    verify(
+      expectedEventType = "organisations-api.organisation-phone.created",
+      expectedAdditionalInformation = OrganisationInfo(
+        organisationId = 1L,
+        identifier = 1L,
+        source = Source.DPS,
+      ),
+      expectedDescription = "An organisation phone number has been created",
+    )
+  }
+
+  @Test
+  fun `phone number updated event is sent to the events publisher`() {
+    featureSwitches.stub { on { isEnabled(OutboundEvent.ORGANISATION_PHONE_UPDATED) } doReturn true }
+    outboundEventsService.send(OutboundEvent.ORGANISATION_PHONE_UPDATED, 1L, 1L)
+    verify(
+      expectedEventType = "organisations-api.organisation-phone.updated",
+      expectedAdditionalInformation = OrganisationInfo(
+        organisationId = 1L,
+        identifier = 1L,
+        source = Source.DPS,
+      ),
+      expectedDescription = "An organisation phone number has been updated",
+    )
+  }
+
+  @Test
+  fun `phone number deleted event is sent to the events publisher`() {
+    featureSwitches.stub { on { isEnabled(OutboundEvent.ORGANISATION_PHONE_DELETED) } doReturn true }
+    outboundEventsService.send(OutboundEvent.ORGANISATION_PHONE_DELETED, 1L, 1L)
+    verify(
+      expectedEventType = "organisations-api.organisation-phone.deleted",
+      expectedAdditionalInformation = OrganisationInfo(
+        organisationId = 1L,
+        identifier = 1L,
+        source = Source.DPS,
+      ),
+      expectedDescription = "An organisation phone number has been deleted",
+    )
+  }
+
   @ParameterizedTest
   @EnumSource(OutboundEvent::class)
   fun `should trap exception sending event`(event: OutboundEvent) {

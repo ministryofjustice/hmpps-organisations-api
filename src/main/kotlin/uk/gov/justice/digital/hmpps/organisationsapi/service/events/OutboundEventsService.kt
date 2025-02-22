@@ -27,6 +27,9 @@ class OutboundEventsService(
         OutboundEvent.ORGANISATION_CREATED,
         OutboundEvent.ORGANISATION_UPDATED,
         OutboundEvent.ORGANISATION_DELETED,
+        OutboundEvent.ORGANISATION_PHONE_CREATED,
+        OutboundEvent.ORGANISATION_PHONE_UPDATED,
+        OutboundEvent.ORGANISATION_PHONE_DELETED,
         -> {
           sendSafely(outboundEvent, OrganisationInfo(organisationId, identifier, source))
         }

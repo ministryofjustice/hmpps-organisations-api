@@ -51,7 +51,7 @@ class SyncOrganisationServiceTest {
     }
 
     @Test
-    fun `should create a contact`() {
+    fun `should create an organisation`() {
       val request = syncCreateOrganisationRequest(2L)
 
       whenever(orgWithFixedIdRepository.existsById(2L)).thenReturn(false)
@@ -148,7 +148,7 @@ class SyncOrganisationServiceTest {
     }
 
     @Test
-    fun `should fail to update a contact when not found`() {
+    fun `should fail to update an organisation when not found`() {
       val updateRequest = syncUpdateOrganisationRequest(7L)
       whenever(orgWithFixedIdRepository.findById(7L)).thenReturn(Optional.empty())
       assertThrows<EntityNotFoundException> {
