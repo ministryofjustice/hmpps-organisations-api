@@ -9,27 +9,39 @@ import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateEmailRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreatePhoneRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateWebRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateEmailRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdatePhoneRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateWebRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncEmailResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncOrganisationResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncPhoneResponse
+import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncWebResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEvent
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEventsService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.Source
+import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncEmailService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncOrganisationService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncPhoneService
+import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncWebService
 import java.time.LocalDateTime
 
 class SyncFacadeTest {
   private val syncOrganisationService: SyncOrganisationService = mock()
   private val syncPhoneService: SyncPhoneService = mock()
+  private val syncEmailService: SyncEmailService = mock()
+  private val syncWebService: SyncWebService = mock()
   private val outboundEventsService: OutboundEventsService = mock()
 
   private val facade = SyncFacade(
     syncOrganisationService,
     syncPhoneService,
+    syncEmailService,
+    syncWebService,
     outboundEventsService,
   )
 
@@ -307,6 +319,278 @@ class SyncFacadeTest {
       organisationId = 1L,
       phoneType = "HOME",
       phoneNumber = "07999 654321",
+      updatedBy = "UPDATER",
+      updatedTime = LocalDateTime.now(),
+    )
+  }
+
+  @Nested
+  inner class SyncEmailFacadeEvents {
+    @Test
+    fun `should send ORGANISATION_EMAIL_CREATED domain event on create success`() {
+      val request = syncCreateEmailRequest()
+      val response = syncEmailResponse(1L)
+
+      whenever(syncEmailService.createEmail(any())).thenReturn(response)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val result = facade.createEmail(request)
+
+      assertThat(result.organisationId).isEqualTo(request.organisationId)
+      assertThat(result.organisationEmailId).isEqualTo(1L)
+
+      verify(syncEmailService).createEmail(request)
+      verify(outboundEventsService).send(
+        outboundEvent = OutboundEvent.ORGANISATION_EMAIL_CREATED,
+        organisationId = result.organisationId,
+        identifier = result.organisationEmailId,
+        source = Source.NOMIS,
+      )
+    }
+
+    @Test
+    fun `should not send ORGANISATION_EMAIL_CREATED domain event on create failure`() {
+      val request = syncCreateEmailRequest()
+      val expectedException = RuntimeException("Bang!")
+
+      whenever(syncEmailService.createEmail(any())).thenThrow(expectedException)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val exception = assertThrows<RuntimeException> {
+        facade.createEmail(request)
+      }
+
+      assertThat(exception.message).isEqualTo(expectedException.message)
+
+      verify(syncEmailService).createEmail(request)
+      verify(outboundEventsService, never()).send(any(), any(), any(), any())
+    }
+
+    @Test
+    fun `should send ORGANISATION_EMAIL_UPDATED domain event on update success`() {
+      val request = syncUpdateEmailRequest()
+      val response = syncEmailResponse(2L)
+
+      whenever(syncEmailService.updateEmail(any(), any())).thenReturn(response)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val result = facade.updateEmail(2L, request)
+
+      verify(syncEmailService).updateEmail(2L, request)
+      verify(outboundEventsService).send(
+        outboundEvent = OutboundEvent.ORGANISATION_EMAIL_UPDATED,
+        organisationId = result.organisationId,
+        identifier = result.organisationEmailId,
+        source = Source.NOMIS,
+      )
+    }
+
+    @Test
+    fun `should not send ORGANISATION_EMAIL_UPDATED domain event on update failure`() {
+      val request = syncUpdateEmailRequest()
+      val expectedException = RuntimeException("Bang!")
+
+      whenever(syncEmailService.updateEmail(any(), any())).thenThrow(expectedException)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val exception = assertThrows<RuntimeException> {
+        facade.updateEmail(3L, request)
+      }
+
+      assertThat(exception.message).isEqualTo(expectedException.message)
+
+      verify(syncEmailService).updateEmail(3L, request)
+      verify(outboundEventsService, never()).send(any(), any(), any(), any())
+    }
+
+    @Test
+    fun `should send ORGANISATION_EMAIL_DELETED domain event on delete success`() {
+      val response = syncEmailResponse(4L)
+      whenever(syncEmailService.deleteEmail(any())).thenReturn(response)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val result = facade.deleteEmail(4L)
+
+      verify(syncEmailService).deleteEmail(4L)
+
+      verify(outboundEventsService).send(
+        outboundEvent = OutboundEvent.ORGANISATION_EMAIL_DELETED,
+        organisationId = result.organisationId,
+        identifier = result.organisationEmailId,
+        source = Source.NOMIS,
+      )
+    }
+
+    @Test
+    fun `should not send ORGANISATION_EMAIL_DELETED on delete failure`() {
+      val expectedException = RuntimeException("Bang!")
+
+      whenever(syncEmailService.deleteEmail(any())).thenThrow(expectedException)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val exception = assertThrows<RuntimeException> {
+        facade.deleteEmail(5L)
+      }
+
+      assertThat(exception.message).isEqualTo(expectedException.message)
+      verify(syncEmailService).deleteEmail(5L)
+      verify(outboundEventsService, never()).send(any(), any(), any(), any())
+    }
+
+    private fun syncCreateEmailRequest() = SyncCreateEmailRequest(
+      organisationId = 1L,
+      emailAddress = "created@example.com",
+      createdTime = LocalDateTime.now(),
+      createdBy = "CREATOR",
+    )
+
+    private fun syncEmailResponse(organisationEmailId: Long) = SyncEmailResponse(
+      organisationId = 1L,
+      organisationEmailId = organisationEmailId,
+      emailAddress = "created@example.com",
+      createdBy = "CREATOR",
+      createdTime = LocalDateTime.now(),
+    )
+
+    private fun syncUpdateEmailRequest() = SyncUpdateEmailRequest(
+      organisationId = 1L,
+      emailAddress = "updated@example.com",
+      updatedBy = "UPDATER",
+      updatedTime = LocalDateTime.now(),
+    )
+  }
+
+  @Nested
+  inner class SyncWebFacadeEvents {
+    @Test
+    fun `should send ORGANISATION_WEB_CREATED domain event on create success`() {
+      val request = syncCreateWebRequest()
+      val response = syncWebResponse(1L)
+
+      whenever(syncWebService.createWeb(any())).thenReturn(response)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val result = facade.createWeb(request)
+
+      assertThat(result.organisationId).isEqualTo(request.organisationId)
+      assertThat(result.organisationWebAddressId).isEqualTo(1L)
+
+      verify(syncWebService).createWeb(request)
+      verify(outboundEventsService).send(
+        outboundEvent = OutboundEvent.ORGANISATION_WEB_CREATED,
+        organisationId = result.organisationId,
+        identifier = result.organisationWebAddressId,
+        source = Source.NOMIS,
+      )
+    }
+
+    @Test
+    fun `should not send ORGANISATION_WEB_CREATED domain event on create failure`() {
+      val request = syncCreateWebRequest()
+      val expectedException = RuntimeException("Bang!")
+
+      whenever(syncWebService.createWeb(any())).thenThrow(expectedException)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val exception = assertThrows<RuntimeException> {
+        facade.createWeb(request)
+      }
+
+      assertThat(exception.message).isEqualTo(expectedException.message)
+
+      verify(syncWebService).createWeb(request)
+      verify(outboundEventsService, never()).send(any(), any(), any(), any())
+    }
+
+    @Test
+    fun `should send ORGANISATION_WEB_UPDATED domain event on update success`() {
+      val request = syncUpdateWebRequest()
+      val response = syncWebResponse(2L)
+
+      whenever(syncWebService.updateWeb(any(), any())).thenReturn(response)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val result = facade.updateWeb(2L, request)
+
+      verify(syncWebService).updateWeb(2L, request)
+      verify(outboundEventsService).send(
+        outboundEvent = OutboundEvent.ORGANISATION_WEB_UPDATED,
+        organisationId = result.organisationId,
+        identifier = result.organisationWebAddressId,
+        source = Source.NOMIS,
+      )
+    }
+
+    @Test
+    fun `should not send ORGANISATION_WEB_UPDATED domain event on update failure`() {
+      val request = syncUpdateWebRequest()
+      val expectedException = RuntimeException("Bang!")
+
+      whenever(syncWebService.updateWeb(any(), any())).thenThrow(expectedException)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val exception = assertThrows<RuntimeException> {
+        facade.updateWeb(3L, request)
+      }
+
+      assertThat(exception.message).isEqualTo(expectedException.message)
+
+      verify(syncWebService).updateWeb(3L, request)
+      verify(outboundEventsService, never()).send(any(), any(), any(), any())
+    }
+
+    @Test
+    fun `should send ORGANISATION_WEB_DELETED domain event on delete success`() {
+      val response = syncWebResponse(4L)
+      whenever(syncWebService.deleteWeb(any())).thenReturn(response)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val result = facade.deleteWeb(4L)
+
+      verify(syncWebService).deleteWeb(4L)
+
+      verify(outboundEventsService).send(
+        outboundEvent = OutboundEvent.ORGANISATION_WEB_DELETED,
+        organisationId = result.organisationId,
+        identifier = result.organisationWebAddressId,
+        source = Source.NOMIS,
+      )
+    }
+
+    @Test
+    fun `should not send ORGANISATION_WEB_DELETED on delete failure`() {
+      val expectedException = RuntimeException("Bang!")
+
+      whenever(syncWebService.deleteWeb(any())).thenThrow(expectedException)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val exception = assertThrows<RuntimeException> {
+        facade.deleteWeb(5L)
+      }
+
+      assertThat(exception.message).isEqualTo(expectedException.message)
+      verify(syncWebService).deleteWeb(5L)
+      verify(outboundEventsService, never()).send(any(), any(), any(), any())
+    }
+
+    private fun syncCreateWebRequest() = SyncCreateWebRequest(
+      organisationId = 1L,
+      webAddress = "www.example.com",
+      createdTime = LocalDateTime.now(),
+      createdBy = "CREATOR",
+    )
+
+    private fun syncWebResponse(organisationWebId: Long) = SyncWebResponse(
+      organisationId = 1L,
+      organisationWebAddressId = organisationWebId,
+      webAddress = "www.example.com",
+      createdBy = "CREATOR",
+      createdTime = LocalDateTime.now(),
+    )
+
+    private fun syncUpdateWebRequest() = SyncUpdateWebRequest(
+      organisationId = 1L,
+      webAddress = "www.updated.com",
       updatedBy = "UPDATER",
       updatedTime = LocalDateTime.now(),
     )

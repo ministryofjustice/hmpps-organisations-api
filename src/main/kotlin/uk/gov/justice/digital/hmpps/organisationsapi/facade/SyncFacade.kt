@@ -1,15 +1,21 @@
 package uk.gov.justice.digital.hmpps.organisationsapi.facade
 
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateEmailRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreatePhoneRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateWebRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateEmailRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdatePhoneRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateWebRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEvent
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEventsService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.Source
+import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncEmailService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncOrganisationService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncPhoneService
+import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncWebService
 
 /**
  * This class is a facade over the sync services as a thin layer
@@ -33,6 +39,8 @@ import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncPhoneServi
 class SyncFacade(
   private val syncOrganisationService: SyncOrganisationService,
   private val syncPhoneService: SyncPhoneService,
+  private val syncEmailService: SyncEmailService,
+  private val syncWebService: SyncWebService,
   private val outboundEventsService: OutboundEventsService,
 ) {
   // ================================================================
@@ -103,6 +111,78 @@ class SyncFacade(
         outboundEvent = OutboundEvent.ORGANISATION_PHONE_DELETED,
         organisationId = it.organisationId,
         identifier = it.organisationPhoneId,
+        source = Source.NOMIS,
+      )
+    }
+
+  // ================================================================
+  //  Organisation email
+  // ================================================================
+
+  fun getEmailById(organisationEmailId: Long) = syncEmailService.getEmailById(organisationEmailId)
+
+  fun createEmail(request: SyncCreateEmailRequest) = syncEmailService.createEmail(request)
+    .also {
+      outboundEventsService.send(
+        outboundEvent = OutboundEvent.ORGANISATION_EMAIL_CREATED,
+        organisationId = it.organisationId,
+        identifier = it.organisationEmailId,
+        source = Source.NOMIS,
+      )
+    }
+
+  fun updateEmail(organisationEmailId: Long, request: SyncUpdateEmailRequest) = syncEmailService.updateEmail(organisationEmailId, request)
+    .also {
+      outboundEventsService.send(
+        outboundEvent = OutboundEvent.ORGANISATION_EMAIL_UPDATED,
+        organisationId = it.organisationId,
+        identifier = it.organisationEmailId,
+        source = Source.NOMIS,
+      )
+    }
+
+  fun deleteEmail(organisationEmailId: Long) = syncEmailService.deleteEmail(organisationEmailId)
+    .also {
+      outboundEventsService.send(
+        outboundEvent = OutboundEvent.ORGANISATION_EMAIL_DELETED,
+        organisationId = it.organisationId,
+        identifier = it.organisationEmailId,
+        source = Source.NOMIS,
+      )
+    }
+
+  // ================================================================
+  //  Organisation web address
+  // ================================================================
+
+  fun getWebById(organisationWebId: Long) = syncWebService.getWebAddressById(organisationWebId)
+
+  fun createWeb(request: SyncCreateWebRequest) = syncWebService.createWeb(request)
+    .also {
+      outboundEventsService.send(
+        outboundEvent = OutboundEvent.ORGANISATION_WEB_CREATED,
+        organisationId = it.organisationId,
+        identifier = it.organisationWebAddressId,
+        source = Source.NOMIS,
+      )
+    }
+
+  fun updateWeb(organisationWebId: Long, request: SyncUpdateWebRequest) = syncWebService.updateWeb(organisationWebId, request)
+    .also {
+      outboundEventsService.send(
+        outboundEvent = OutboundEvent.ORGANISATION_WEB_UPDATED,
+        organisationId = it.organisationId,
+        identifier = it.organisationWebAddressId,
+        source = Source.NOMIS,
+      )
+    }
+
+  fun deleteWeb(organisationWebId: Long) = syncWebService.deleteWeb(organisationWebId)
+    .also {
+      outboundEventsService.send(
+        outboundEvent = OutboundEvent.ORGANISATION_WEB_DELETED,
+        organisationId = it.organisationId,
+        identifier = it.organisationWebAddressId,
         source = Source.NOMIS,
       )
     }

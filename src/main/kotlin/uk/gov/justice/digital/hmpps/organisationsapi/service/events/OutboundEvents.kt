@@ -49,6 +49,48 @@ enum class OutboundEvent(val eventType: String) {
       description = "An organisation phone number has been deleted",
     )
   },
+  ORGANISATION_EMAIL_CREATED("organisations-api.organisation-email.created") {
+    override fun event(additionalInformation: AdditionalInformation) = OutboundHMPPSDomainEvent(
+      eventType = eventType,
+      additionalInformation = additionalInformation,
+      description = "An organisation email address has been created",
+    )
+  },
+  ORGANISATION_EMAIL_UPDATED("organisations-api.organisation-email.updated") {
+    override fun event(additionalInformation: AdditionalInformation) = OutboundHMPPSDomainEvent(
+      eventType = eventType,
+      additionalInformation = additionalInformation,
+      description = "An organisation email address has been updated",
+    )
+  },
+  ORGANISATION_EMAIL_DELETED("organisations-api.organisation-email.deleted") {
+    override fun event(additionalInformation: AdditionalInformation) = OutboundHMPPSDomainEvent(
+      eventType = eventType,
+      additionalInformation = additionalInformation,
+      description = "An organisation email address has been deleted",
+    )
+  },
+  ORGANISATION_WEB_CREATED("organisations-api.organisation-web.created") {
+    override fun event(additionalInformation: AdditionalInformation) = OutboundHMPPSDomainEvent(
+      eventType = eventType,
+      additionalInformation = additionalInformation,
+      description = "An organisation web address has been created",
+    )
+  },
+  ORGANISATION_WEB_UPDATED("organisations-api.organisation-web.updated") {
+    override fun event(additionalInformation: AdditionalInformation) = OutboundHMPPSDomainEvent(
+      eventType = eventType,
+      additionalInformation = additionalInformation,
+      description = "An organisation web address has been updated",
+    )
+  },
+  ORGANISATION_WEB_DELETED("organisations-api.organisation-web.deleted") {
+    override fun event(additionalInformation: AdditionalInformation) = OutboundHMPPSDomainEvent(
+      eventType = eventType,
+      additionalInformation = additionalInformation,
+      description = "An organisation web address has been deleted",
+    )
+  },
   ;
 
   abstract fun event(additionalInformation: AdditionalInformation): OutboundHMPPSDomainEvent

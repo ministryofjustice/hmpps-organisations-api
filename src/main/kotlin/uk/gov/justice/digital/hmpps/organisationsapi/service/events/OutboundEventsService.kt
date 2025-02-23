@@ -30,6 +30,12 @@ class OutboundEventsService(
         OutboundEvent.ORGANISATION_PHONE_CREATED,
         OutboundEvent.ORGANISATION_PHONE_UPDATED,
         OutboundEvent.ORGANISATION_PHONE_DELETED,
+        OutboundEvent.ORGANISATION_EMAIL_CREATED,
+        OutboundEvent.ORGANISATION_EMAIL_UPDATED,
+        OutboundEvent.ORGANISATION_EMAIL_DELETED,
+        OutboundEvent.ORGANISATION_WEB_CREATED,
+        OutboundEvent.ORGANISATION_WEB_UPDATED,
+        OutboundEvent.ORGANISATION_WEB_DELETED,
         -> {
           sendSafely(outboundEvent, OrganisationInfo(organisationId, identifier, source))
         }
