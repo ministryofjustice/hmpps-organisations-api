@@ -36,3 +36,7 @@ feature:
         created: true
         updated: true
         deleted: true
+      organisation-address:
+        created: true
+        updated: true
+        deleted: true

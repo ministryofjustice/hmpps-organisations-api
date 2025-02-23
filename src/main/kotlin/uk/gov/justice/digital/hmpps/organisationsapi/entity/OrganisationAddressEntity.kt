@@ -18,7 +18,7 @@ data class OrganisationAddressEntity(
 
   val organisationId: Long,
 
-  val addressType: String?,
+  val addressType: String? = null,
 
   val primaryAddress: Boolean,
 
@@ -28,33 +28,33 @@ data class OrganisationAddressEntity(
 
   val noFixedAddress: Boolean,
 
-  val flat: String?,
+  val flat: String? = null,
 
-  val property: String?,
+  val property: String? = null,
 
-  val street: String?,
+  val street: String? = null,
 
-  val area: String?,
+  val area: String? = null,
 
-  val cityCode: String?,
+  val cityCode: String? = null,
 
-  val countyCode: String?,
+  val countyCode: String? = null,
 
-  val postCode: String?,
+  val postCode: String? = null,
 
-  val countryCode: String?,
+  val countryCode: String? = null,
 
-  val specialNeedsCode: String?,
+  val specialNeedsCode: String? = null,
 
-  val contactPersonName: String?,
+  val contactPersonName: String? = null,
 
-  val businessHours: String?,
+  val businessHours: String? = null,
 
-  val comments: String?,
+  val comments: String? = null,
 
-  val startDate: LocalDate?,
+  val startDate: LocalDate? = null,
 
-  val endDate: LocalDate?,
+  val endDate: LocalDate? = null,
 
   @Column(updatable = false)
   val createdBy: String,
@@ -62,7 +62,7 @@ data class OrganisationAddressEntity(
   @Column(updatable = false)
   val createdTime: LocalDateTime,
 
-  val updatedBy: String?,
+  val updatedBy: String? = null,
 
-  val updatedTime: LocalDateTime?,
+  val updatedTime: LocalDateTime? = null,
 )

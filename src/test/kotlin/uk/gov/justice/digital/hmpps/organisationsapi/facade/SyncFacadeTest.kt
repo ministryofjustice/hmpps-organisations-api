@@ -9,14 +9,17 @@ import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateAddressRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateEmailRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreatePhoneRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateWebRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateAddressRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateEmailRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdatePhoneRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateWebRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncAddressResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncEmailResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncOrganisationResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncPhoneResponse
@@ -24,6 +27,7 @@ import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncWeb
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEvent
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEventsService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.Source
+import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncAddressService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncEmailService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncOrganisationService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncPhoneService
@@ -35,6 +39,7 @@ class SyncFacadeTest {
   private val syncPhoneService: SyncPhoneService = mock()
   private val syncEmailService: SyncEmailService = mock()
   private val syncWebService: SyncWebService = mock()
+  private val syncAddressService: SyncAddressService = mock()
   private val outboundEventsService: OutboundEventsService = mock()
 
   private val facade = SyncFacade(
@@ -42,6 +47,7 @@ class SyncFacadeTest {
     syncPhoneService,
     syncEmailService,
     syncWebService,
+    syncAddressService,
     outboundEventsService,
   )
 
@@ -591,6 +597,145 @@ class SyncFacadeTest {
     private fun syncUpdateWebRequest() = SyncUpdateWebRequest(
       organisationId = 1L,
       webAddress = "www.updated.com",
+      updatedBy = "UPDATER",
+      updatedTime = LocalDateTime.now(),
+    )
+  }
+
+  @Nested
+  inner class SyncAddressFacadeEvents {
+    @Test
+    fun `should send ORGANISATION_ADDRESS_CREATED domain event on create success`() {
+      val request = syncCreateAddressRequest()
+      val response = syncAddressResponse(1L)
+
+      whenever(syncAddressService.createAddress(any())).thenReturn(response)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val result = facade.createAddress(request)
+
+      assertThat(result.organisationId).isEqualTo(request.organisationId)
+      assertThat(result.organisationAddressId).isEqualTo(1L)
+
+      verify(syncAddressService).createAddress(request)
+      verify(outboundEventsService).send(
+        outboundEvent = OutboundEvent.ORGANISATION_ADDRESS_CREATED,
+        organisationId = result.organisationId,
+        identifier = result.organisationAddressId,
+        source = Source.NOMIS,
+      )
+    }
+
+    @Test
+    fun `should not send ORGANISATION_ADDRESS_CREATED domain event on create failure`() {
+      val request = syncCreateAddressRequest()
+      val expectedException = RuntimeException("Bang!")
+
+      whenever(syncAddressService.createAddress(any())).thenThrow(expectedException)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val exception = assertThrows<RuntimeException> {
+        facade.createAddress(request)
+      }
+
+      assertThat(exception.message).isEqualTo(expectedException.message)
+
+      verify(syncAddressService).createAddress(request)
+      verify(outboundEventsService, never()).send(any(), any(), any(), any())
+    }
+
+    @Test
+    fun `should send ORGANISATION_ADDRESS_UPDATED domain event on update success`() {
+      val request = syncUpdateAddressRequest()
+      val response = syncAddressResponse(2L)
+
+      whenever(syncAddressService.updateAddress(any(), any())).thenReturn(response)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val result = facade.updateAddress(2L, request)
+
+      verify(syncAddressService).updateAddress(2L, request)
+      verify(outboundEventsService).send(
+        outboundEvent = OutboundEvent.ORGANISATION_ADDRESS_UPDATED,
+        organisationId = result.organisationId,
+        identifier = result.organisationAddressId,
+        source = Source.NOMIS,
+      )
+    }
+
+    @Test
+    fun `should not send ORGANISATION_ADDRESS_UPDATED domain event on update failure`() {
+      val request = syncUpdateAddressRequest()
+      val expectedException = RuntimeException("Bang!")
+
+      whenever(syncAddressService.updateAddress(any(), any())).thenThrow(expectedException)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val exception = assertThrows<RuntimeException> {
+        facade.updateAddress(3L, request)
+      }
+
+      assertThat(exception.message).isEqualTo(expectedException.message)
+
+      verify(syncAddressService).updateAddress(3L, request)
+      verify(outboundEventsService, never()).send(any(), any(), any(), any())
+    }
+
+    @Test
+    fun `should send ORGANISATION_ADDRESS_DELETED domain event on delete success`() {
+      val response = syncAddressResponse(4L)
+      whenever(syncAddressService.deleteAddress(any())).thenReturn(response)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val result = facade.deleteAddress(4L)
+
+      verify(syncAddressService).deleteAddress(4L)
+
+      verify(outboundEventsService).send(
+        outboundEvent = OutboundEvent.ORGANISATION_ADDRESS_DELETED,
+        organisationId = result.organisationId,
+        identifier = result.organisationAddressId,
+        source = Source.NOMIS,
+      )
+    }
+
+    @Test
+    fun `should not send ORGANISATION_ADDRESS_DELETED on delete failure`() {
+      val expectedException = RuntimeException("Bang!")
+
+      whenever(syncAddressService.deleteAddress(any())).thenThrow(expectedException)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val exception = assertThrows<RuntimeException> {
+        facade.deleteAddress(5L)
+      }
+
+      assertThat(exception.message).isEqualTo(expectedException.message)
+      verify(syncAddressService).deleteAddress(5L)
+      verify(outboundEventsService, never()).send(any(), any(), any(), any())
+    }
+
+    private fun syncCreateAddressRequest() = SyncCreateAddressRequest(
+      organisationId = 1L,
+      addressType = "HOME",
+      createdTime = LocalDateTime.now(),
+      createdBy = "CREATOR",
+    )
+
+    private fun syncAddressResponse(organisationAddressId: Long) = SyncAddressResponse(
+      organisationId = 1L,
+      organisationAddressId = organisationAddressId,
+      primaryAddress = true,
+      mailAddress = true,
+      serviceAddress = false,
+      noFixedAddress = false,
+      createdBy = "CREATOR",
+      createdTime = LocalDateTime.now(),
+    )
+
+    private fun syncUpdateAddressRequest() = SyncUpdateAddressRequest(
+      organisationId = 1L,
+      addressType = "BUS",
       updatedBy = "UPDATER",
       updatedTime = LocalDateTime.now(),
     )

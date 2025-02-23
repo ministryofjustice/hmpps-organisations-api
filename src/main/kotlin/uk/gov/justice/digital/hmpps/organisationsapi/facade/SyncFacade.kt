@@ -1,10 +1,12 @@
 package uk.gov.justice.digital.hmpps.organisationsapi.facade
 
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateAddressRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateEmailRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreatePhoneRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateWebRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateAddressRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateEmailRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdatePhoneRequest
@@ -12,6 +14,7 @@ import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpda
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEvent
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEventsService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.Source
+import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncAddressService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncEmailService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncOrganisationService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncPhoneService
@@ -41,6 +44,7 @@ class SyncFacade(
   private val syncPhoneService: SyncPhoneService,
   private val syncEmailService: SyncEmailService,
   private val syncWebService: SyncWebService,
+  private val syncAddressService: SyncAddressService,
   private val outboundEventsService: OutboundEventsService,
 ) {
   // ================================================================
@@ -183,6 +187,42 @@ class SyncFacade(
         outboundEvent = OutboundEvent.ORGANISATION_WEB_DELETED,
         organisationId = it.organisationId,
         identifier = it.organisationWebAddressId,
+        source = Source.NOMIS,
+      )
+    }
+
+  // ================================================================
+  //  Organisation address
+  // ================================================================
+
+  fun getAddressById(organisationAddressId: Long) = syncAddressService.getAddressById(organisationAddressId)
+
+  fun createAddress(request: SyncCreateAddressRequest) = syncAddressService.createAddress(request)
+    .also {
+      outboundEventsService.send(
+        outboundEvent = OutboundEvent.ORGANISATION_ADDRESS_CREATED,
+        organisationId = it.organisationId,
+        identifier = it.organisationAddressId,
+        source = Source.NOMIS,
+      )
+    }
+
+  fun updateAddress(organisationAddressId: Long, request: SyncUpdateAddressRequest) = syncAddressService.updateAddress(organisationAddressId, request)
+    .also {
+      outboundEventsService.send(
+        outboundEvent = OutboundEvent.ORGANISATION_ADDRESS_UPDATED,
+        organisationId = it.organisationId,
+        identifier = it.organisationAddressId,
+        source = Source.NOMIS,
+      )
+    }
+
+  fun deleteAddress(organisationAddressId: Long) = syncAddressService.deleteAddress(organisationAddressId)
+    .also {
+      outboundEventsService.send(
+        outboundEvent = OutboundEvent.ORGANISATION_ADDRESS_DELETED,
+        organisationId = it.organisationId,
+        identifier = it.organisationAddressId,
         source = Source.NOMIS,
       )
     }
