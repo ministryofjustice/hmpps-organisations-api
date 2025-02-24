@@ -35,9 +35,9 @@ data class SyncOrganisationResponse(
   @Schema(description = "Timestamp when the organisation was created", example = "2023-09-23T10:15:30")
   val createdTime: LocalDateTime,
 
-  @Schema(description = "User who updated the organisation", example = "admin2")
+  @Schema(description = "User who updated the organisation", example = "admin2", nullable = true)
   val updatedBy: String? = null,
 
-  @Schema(description = "Timestamp when the organisation was updated", example = "2023-09-24T12:00:00")
+  @Schema(description = "Timestamp when the organisation was last updated", example = "2023-09-24T12:00:00", nullable = true)
   val updatedTime: LocalDateTime? = null,
 )

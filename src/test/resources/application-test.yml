@@ -24,3 +24,19 @@ feature:
         created: true
         updated: true
         deleted: true
+      organisation-phone:
+        created: true
+        updated: true
+        deleted: true
+      organisation-email:
+        created: true
+        updated: true
+        deleted: true
+      organisation-web:
+        created: true
+        updated: true
+        deleted: true
+      organisation-address:
+        created: true
+        updated: true
+        deleted: true

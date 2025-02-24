@@ -23,6 +23,8 @@ class OutboundEventsServiceTest {
   private val outboundEventsService = OutboundEventsService(eventsPublisher, featureSwitches)
   private val eventCaptor = argumentCaptor<OutboundHMPPSDomainEvent>()
 
+  // ============= Organisations ==================
+
   @Test
   fun `organisation created event with id 1 is sent to the events publisher`() {
     featureSwitches.stub { on { isEnabled(OutboundEvent.ORGANISATION_CREATED) } doReturn true }
@@ -65,6 +67,194 @@ class OutboundEventsServiceTest {
         source = Source.DPS,
       ),
       expectedDescription = "An organisation has been deleted",
+    )
+  }
+
+  // ============= Phone numbers ==================
+
+  @Test
+  fun `phone number created event is sent to the events publisher`() {
+    featureSwitches.stub { on { isEnabled(OutboundEvent.ORGANISATION_PHONE_CREATED) } doReturn true }
+    outboundEventsService.send(OutboundEvent.ORGANISATION_PHONE_CREATED, 1L, 1L)
+    verify(
+      expectedEventType = "organisations-api.organisation-phone.created",
+      expectedAdditionalInformation = OrganisationInfo(
+        organisationId = 1L,
+        identifier = 1L,
+        source = Source.DPS,
+      ),
+      expectedDescription = "An organisation phone number has been created",
+    )
+  }
+
+  @Test
+  fun `phone number updated event is sent to the events publisher`() {
+    featureSwitches.stub { on { isEnabled(OutboundEvent.ORGANISATION_PHONE_UPDATED) } doReturn true }
+    outboundEventsService.send(OutboundEvent.ORGANISATION_PHONE_UPDATED, 1L, 1L)
+    verify(
+      expectedEventType = "organisations-api.organisation-phone.updated",
+      expectedAdditionalInformation = OrganisationInfo(
+        organisationId = 1L,
+        identifier = 1L,
+        source = Source.DPS,
+      ),
+      expectedDescription = "An organisation phone number has been updated",
+    )
+  }
+
+  @Test
+  fun `phone number deleted event is sent to the events publisher`() {
+    featureSwitches.stub { on { isEnabled(OutboundEvent.ORGANISATION_PHONE_DELETED) } doReturn true }
+    outboundEventsService.send(OutboundEvent.ORGANISATION_PHONE_DELETED, 1L, 1L)
+    verify(
+      expectedEventType = "organisations-api.organisation-phone.deleted",
+      expectedAdditionalInformation = OrganisationInfo(
+        organisationId = 1L,
+        identifier = 1L,
+        source = Source.DPS,
+      ),
+      expectedDescription = "An organisation phone number has been deleted",
+    )
+  }
+
+  // ============= Email ==================
+
+  @Test
+  fun `email address created event is sent to the events publisher`() {
+    featureSwitches.stub { on { isEnabled(OutboundEvent.ORGANISATION_EMAIL_CREATED) } doReturn true }
+    outboundEventsService.send(OutboundEvent.ORGANISATION_EMAIL_CREATED, 1L, 1L)
+    verify(
+      expectedEventType = "organisations-api.organisation-email.created",
+      expectedAdditionalInformation = OrganisationInfo(
+        organisationId = 1L,
+        identifier = 1L,
+        source = Source.DPS,
+      ),
+      expectedDescription = "An organisation email address has been created",
+    )
+  }
+
+  @Test
+  fun `email address updated event is sent to the events publisher`() {
+    featureSwitches.stub { on { isEnabled(OutboundEvent.ORGANISATION_EMAIL_UPDATED) } doReturn true }
+    outboundEventsService.send(OutboundEvent.ORGANISATION_EMAIL_UPDATED, 1L, 1L)
+    verify(
+      expectedEventType = "organisations-api.organisation-email.updated",
+      expectedAdditionalInformation = OrganisationInfo(
+        organisationId = 1L,
+        identifier = 1L,
+        source = Source.DPS,
+      ),
+      expectedDescription = "An organisation email address has been updated",
+    )
+  }
+
+  @Test
+  fun `email address deleted event is sent to the events publisher`() {
+    featureSwitches.stub { on { isEnabled(OutboundEvent.ORGANISATION_EMAIL_DELETED) } doReturn true }
+    outboundEventsService.send(OutboundEvent.ORGANISATION_EMAIL_DELETED, 1L, 1L)
+    verify(
+      expectedEventType = "organisations-api.organisation-email.deleted",
+      expectedAdditionalInformation = OrganisationInfo(
+        organisationId = 1L,
+        identifier = 1L,
+        source = Source.DPS,
+      ),
+      expectedDescription = "An organisation email address has been deleted",
+    )
+  }
+
+  // ============= Web address ==================
+
+  @Test
+  fun `web address created event is sent to the events publisher`() {
+    featureSwitches.stub { on { isEnabled(OutboundEvent.ORGANISATION_WEB_CREATED) } doReturn true }
+    outboundEventsService.send(OutboundEvent.ORGANISATION_WEB_CREATED, 1L, 1L)
+    verify(
+      expectedEventType = "organisations-api.organisation-web.created",
+      expectedAdditionalInformation = OrganisationInfo(
+        organisationId = 1L,
+        identifier = 1L,
+        source = Source.DPS,
+      ),
+      expectedDescription = "An organisation web address has been created",
+    )
+  }
+
+  @Test
+  fun `web address updated event is sent to the events publisher`() {
+    featureSwitches.stub { on { isEnabled(OutboundEvent.ORGANISATION_WEB_UPDATED) } doReturn true }
+    outboundEventsService.send(OutboundEvent.ORGANISATION_WEB_UPDATED, 1L, 1L)
+    verify(
+      expectedEventType = "organisations-api.organisation-web.updated",
+      expectedAdditionalInformation = OrganisationInfo(
+        organisationId = 1L,
+        identifier = 1L,
+        source = Source.DPS,
+      ),
+      expectedDescription = "An organisation web address has been updated",
+    )
+  }
+
+  @Test
+  fun `web address deleted event is sent to the events publisher`() {
+    featureSwitches.stub { on { isEnabled(OutboundEvent.ORGANISATION_WEB_DELETED) } doReturn true }
+    outboundEventsService.send(OutboundEvent.ORGANISATION_WEB_DELETED, 1L, 1L)
+    verify(
+      expectedEventType = "organisations-api.organisation-web.deleted",
+      expectedAdditionalInformation = OrganisationInfo(
+        organisationId = 1L,
+        identifier = 1L,
+        source = Source.DPS,
+      ),
+      expectedDescription = "An organisation web address has been deleted",
+    )
+  }
+
+  // ============= Address ==================
+
+  @Test
+  fun `address created event is sent to the events publisher`() {
+    featureSwitches.stub { on { isEnabled(OutboundEvent.ORGANISATION_ADDRESS_CREATED) } doReturn true }
+    outboundEventsService.send(OutboundEvent.ORGANISATION_ADDRESS_CREATED, 1L, 1L)
+    verify(
+      expectedEventType = "organisations-api.organisation-address.created",
+      expectedAdditionalInformation = OrganisationInfo(
+        organisationId = 1L,
+        identifier = 1L,
+        source = Source.DPS,
+      ),
+      expectedDescription = "An organisation address has been created",
+    )
+  }
+
+  @Test
+  fun `address updated event is sent to the events publisher`() {
+    featureSwitches.stub { on { isEnabled(OutboundEvent.ORGANISATION_ADDRESS_UPDATED) } doReturn true }
+    outboundEventsService.send(OutboundEvent.ORGANISATION_ADDRESS_UPDATED, 1L, 1L)
+    verify(
+      expectedEventType = "organisations-api.organisation-address.updated",
+      expectedAdditionalInformation = OrganisationInfo(
+        organisationId = 1L,
+        identifier = 1L,
+        source = Source.DPS,
+      ),
+      expectedDescription = "An organisation address has been updated",
+    )
+  }
+
+  @Test
+  fun `address deleted event is sent to the events publisher`() {
+    featureSwitches.stub { on { isEnabled(OutboundEvent.ORGANISATION_ADDRESS_DELETED) } doReturn true }
+    outboundEventsService.send(OutboundEvent.ORGANISATION_ADDRESS_DELETED, 1L, 1L)
+    verify(
+      expectedEventType = "organisations-api.organisation-address.deleted",
+      expectedAdditionalInformation = OrganisationInfo(
+        organisationId = 1L,
+        identifier = 1L,
+        source = Source.DPS,
+      ),
+      expectedDescription = "An organisation address has been deleted",
     )
   }
 
