@@ -258,6 +258,23 @@ class OutboundEventsServiceTest {
     )
   }
 
+  // ============= Organisation types =============
+
+  @Test
+  fun `organisation types update event is sent to the events publisher`() {
+    featureSwitches.stub { on { isEnabled(OutboundEvent.ORGANISATION_TYPES_UPDATED) } doReturn true }
+    outboundEventsService.send(OutboundEvent.ORGANISATION_TYPES_UPDATED, 1L, 1L)
+    verify(
+      expectedEventType = "organisations-api.organisation-types.updated",
+      expectedAdditionalInformation = OrganisationInfo(
+        organisationId = 1L,
+        identifier = 1L,
+        source = Source.DPS,
+      ),
+      expectedDescription = "An organisation has had its types updated",
+    )
+  }
+
   @ParameterizedTest
   @EnumSource(OutboundEvent::class)
   fun `should trap exception sending event`(event: OutboundEvent) {

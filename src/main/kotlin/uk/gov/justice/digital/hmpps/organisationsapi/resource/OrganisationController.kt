@@ -92,10 +92,11 @@ class OrganisationController(private val organisationFacade: OrganisationFacade)
   @PreAuthorize("hasAnyRole('ROLE_ORGANISATIONS__R', 'ROLE_ORGANISATIONS__RW')")
   fun getOrganisationSummaryById(@PathVariable organisationId: Long): OrganisationSummary = organisationFacade.getOrganisationSummaryById(organisationId)
 
+  @Deprecated(message = "This endpoint is deprecated and should not be used to create organisations. Changes made will not be synchronised to NOMIS.")
   @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
   @Operation(
     summary = "Create new organisation",
-    description = "Creates a new organisation",
+    description = "Creates a new organisation in DPS but does not currently synchronise to NOMIS. Deprecated until this 2-way sync is in place.",
     security = [SecurityRequirement(name = "bearer")],
   )
   @ApiResponses(

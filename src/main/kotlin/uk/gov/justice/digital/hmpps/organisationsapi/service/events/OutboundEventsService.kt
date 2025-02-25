@@ -39,6 +39,7 @@ class OutboundEventsService(
         OutboundEvent.ORGANISATION_ADDRESS_CREATED,
         OutboundEvent.ORGANISATION_ADDRESS_UPDATED,
         OutboundEvent.ORGANISATION_ADDRESS_DELETED,
+        OutboundEvent.ORGANISATION_TYPES_UPDATED,
         -> {
           sendSafely(outboundEvent, OrganisationInfo(organisationId, identifier, source))
         }
