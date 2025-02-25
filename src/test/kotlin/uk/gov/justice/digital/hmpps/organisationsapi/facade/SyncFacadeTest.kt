@@ -14,15 +14,18 @@ import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCrea
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreatePhoneRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateWebRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncOrganisationType
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateAddressRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateEmailRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdatePhoneRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateTypesRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateWebRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncAddressResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncEmailResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncOrganisationResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncPhoneResponse
+import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncTypesResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncWebResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEvent
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEventsService
@@ -31,6 +34,7 @@ import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncAddressSer
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncEmailService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncOrganisationService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncPhoneService
+import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncTypesService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncWebService
 import java.time.LocalDateTime
 
@@ -40,6 +44,7 @@ class SyncFacadeTest {
   private val syncEmailService: SyncEmailService = mock()
   private val syncWebService: SyncWebService = mock()
   private val syncAddressService: SyncAddressService = mock()
+  private val syncTypesService: SyncTypesService = mock()
   private val outboundEventsService: OutboundEventsService = mock()
 
   private val facade = SyncFacade(
@@ -48,6 +53,7 @@ class SyncFacadeTest {
     syncEmailService,
     syncWebService,
     syncAddressService,
+    syncTypesService,
     outboundEventsService,
   )
 
@@ -738,6 +744,61 @@ class SyncFacadeTest {
       addressType = "BUS",
       updatedBy = "UPDATER",
       updatedTime = LocalDateTime.now(),
+    )
+  }
+
+  @Nested
+  inner class SyncTypesFacadeEvents {
+    @Test
+    fun `should send ORGANISATION_TYPES_UPDATED domain event on update success`() {
+      val request = syncUpdateTypesRequest(1L)
+      val response = syncTypesResponse(1L)
+
+      whenever(syncTypesService.updateTypes(any(), any())).thenReturn(response)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val result = facade.updateTypes(1L, request)
+
+      verify(syncTypesService).updateTypes(1L, request)
+      verify(outboundEventsService).send(
+        outboundEvent = OutboundEvent.ORGANISATION_TYPES_UPDATED,
+        organisationId = result.organisationId,
+        identifier = result.organisationId,
+        source = Source.NOMIS,
+      )
+    }
+
+    @Test
+    fun `should not send ORGANISATION_TYPES_UPDATED domain event on update failure`() {
+      val request = syncUpdateTypesRequest(2L)
+      val expectedException = RuntimeException("Bang!")
+
+      whenever(syncTypesService.updateTypes(any(), any())).thenThrow(expectedException)
+      whenever(outboundEventsService.send(any(), any(), any(), any())).then {}
+
+      val exception = assertThrows<RuntimeException> {
+        facade.updateTypes(2L, request)
+      }
+
+      assertThat(exception.message).isEqualTo(expectedException.message)
+
+      verify(syncTypesService).updateTypes(2L, request)
+      verify(outboundEventsService, never()).send(any(), any(), any(), any())
+    }
+
+    private fun syncUpdateTypesRequest(organisationId: Long) = SyncUpdateTypesRequest(
+      organisationId = organisationId,
+      types = listOf(
+        SyncOrganisationType(type = "A", createdBy = "CREATOR", createdTime = LocalDateTime.now()),
+        SyncOrganisationType(type = "B", createdBy = "CREATOR", createdTime = LocalDateTime.now()),
+      ),
+    )
+    private fun syncTypesResponse(organisationId: Long) = SyncTypesResponse(
+      organisationId = organisationId,
+      types = listOf(
+        SyncOrganisationType(type = "A", createdBy = "CREATOR", createdTime = LocalDateTime.now()),
+        SyncOrganisationType(type = "B", createdBy = "CREATOR", createdTime = LocalDateTime.now()),
+      ),
     )
   }
 }

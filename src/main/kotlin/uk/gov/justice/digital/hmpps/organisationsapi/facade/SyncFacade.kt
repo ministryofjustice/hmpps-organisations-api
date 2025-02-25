@@ -10,6 +10,7 @@ import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpda
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateEmailRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdatePhoneRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateTypesRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateWebRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEvent
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEventsService
@@ -18,6 +19,7 @@ import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncAddressSer
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncEmailService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncOrganisationService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncPhoneService
+import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncTypesService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncWebService
 
 /**
@@ -45,6 +47,7 @@ class SyncFacade(
   private val syncEmailService: SyncEmailService,
   private val syncWebService: SyncWebService,
   private val syncAddressService: SyncAddressService,
+  private val syncTypesService: SyncTypesService,
   private val outboundEventsService: OutboundEventsService,
 ) {
   // ================================================================
@@ -223,6 +226,22 @@ class SyncFacade(
         outboundEvent = OutboundEvent.ORGANISATION_ADDRESS_DELETED,
         organisationId = it.organisationId,
         identifier = it.organisationAddressId,
+        source = Source.NOMIS,
+      )
+    }
+
+  // ================================================================
+  //  Organisation types
+  // ================================================================
+
+  fun getTypesByOrganisationId(organisationId: Long) = syncTypesService.getTypesByOrganisationId(organisationId)
+
+  fun updateTypes(organisationId: Long, request: SyncUpdateTypesRequest) = syncTypesService.updateTypes(organisationId, request)
+    .also {
+      outboundEventsService.send(
+        outboundEvent = OutboundEvent.ORGANISATION_TYPES_UPDATED,
+        organisationId = it.organisationId,
+        identifier = it.organisationId,
         source = Source.NOMIS,
       )
     }

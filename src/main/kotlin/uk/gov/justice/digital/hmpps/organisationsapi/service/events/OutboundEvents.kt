@@ -112,6 +112,13 @@ enum class OutboundEvent(val eventType: String) {
       description = "An organisation address has been deleted",
     )
   },
+  ORGANISATION_TYPES_UPDATED("organisations-api.organisation-types.updated") {
+    override fun event(additionalInformation: AdditionalInformation) = OutboundHMPPSDomainEvent(
+      eventType = eventType,
+      additionalInformation = additionalInformation,
+      description = "An organisation has had its types updated",
+    )
+  },
   ;
 
   abstract fun event(additionalInformation: AdditionalInformation): OutboundHMPPSDomainEvent
