@@ -22,6 +22,7 @@ import uk.gov.justice.digital.hmpps.organisationsapi.facade.SyncFacade
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateTypesRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncTypesResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.swagger.AuthApiResponses
+import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
 @Tag(name = "Migration and synchronisation")
 @RestController
@@ -53,6 +54,7 @@ class SyncTypesController(val syncFacade: SyncFacade) {
       ApiResponse(
         responseCode = "404",
         description = "No organisation with the requested ID was found",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
       ),
     ],
   )
@@ -87,10 +89,12 @@ class SyncTypesController(val syncFacade: SyncFacade) {
       ApiResponse(
         responseCode = "404",
         description = "The organisation ID was not found",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
       ),
       ApiResponse(
         responseCode = "400",
         description = "Invalid request data",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
       ),
     ],
   )

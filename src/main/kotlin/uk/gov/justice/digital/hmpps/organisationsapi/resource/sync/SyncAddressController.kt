@@ -55,8 +55,14 @@ class SyncAddressController(val syncFacade: SyncFacade) {
         ],
       ),
       ApiResponse(
+        responseCode = "400",
+        description = "The request has invalid or missing fields",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
+      ),
+      ApiResponse(
         responseCode = "404",
         description = "No organisation address with the requested ID was found",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
       ),
     ],
   )
@@ -84,6 +90,7 @@ class SyncAddressController(val syncFacade: SyncFacade) {
       ApiResponse(
         responseCode = "404",
         description = "No organisation address with the requested ID was found",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
       ),
     ],
   )
@@ -152,10 +159,12 @@ class SyncAddressController(val syncFacade: SyncFacade) {
       ApiResponse(
         responseCode = "404",
         description = "The organisation address was not found",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
       ),
       ApiResponse(
         responseCode = "400",
         description = "Invalid request data",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
       ),
     ],
   )

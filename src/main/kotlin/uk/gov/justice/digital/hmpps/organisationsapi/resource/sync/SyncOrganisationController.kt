@@ -57,6 +57,7 @@ class SyncOrganisationController(val syncFacade: SyncFacade) {
       ApiResponse(
         responseCode = "404",
         description = "No organisation with the requested ID was found",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
       ),
     ],
   )
@@ -84,6 +85,7 @@ class SyncOrganisationController(val syncFacade: SyncFacade) {
       ApiResponse(
         responseCode = "404",
         description = "No organisation with the requested ID was found",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
       ),
     ],
   )
@@ -157,10 +159,12 @@ class SyncOrganisationController(val syncFacade: SyncFacade) {
       ApiResponse(
         responseCode = "404",
         description = "The organisation was not found",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
       ),
       ApiResponse(
         responseCode = "400",
         description = "Invalid request data",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
       ),
     ],
   )

@@ -57,6 +57,7 @@ class SyncWebController(val syncFacade: SyncFacade) {
       ApiResponse(
         responseCode = "404",
         description = "No organisation web address with the requested ID was found",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
       ),
     ],
   )
@@ -84,6 +85,7 @@ class SyncWebController(val syncFacade: SyncFacade) {
       ApiResponse(
         responseCode = "404",
         description = "No organisation web address with the requested ID was found",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
       ),
     ],
   )
@@ -152,10 +154,12 @@ class SyncWebController(val syncFacade: SyncFacade) {
       ApiResponse(
         responseCode = "404",
         description = "The organisation web address was not found",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
       ),
       ApiResponse(
         responseCode = "400",
         description = "Invalid request data",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
       ),
     ],
   )

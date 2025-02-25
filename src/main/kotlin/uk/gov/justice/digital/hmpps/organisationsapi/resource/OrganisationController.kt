@@ -59,6 +59,7 @@ class OrganisationController(private val organisationFacade: OrganisationFacade)
       ApiResponse(
         responseCode = "404",
         description = "No organisation with that id could be found",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
       ),
     ],
   )
@@ -86,6 +87,7 @@ class OrganisationController(private val organisationFacade: OrganisationFacade)
       ApiResponse(
         responseCode = "404",
         description = "No organisation with that id could be found",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
       ),
     ],
   )
