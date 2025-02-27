@@ -11,7 +11,6 @@ import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCrea
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateAddressRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncAddressResponse
-import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncOrganisationResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OrganisationInfo
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEvent
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.Source
@@ -105,11 +104,11 @@ class SyncAddressIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should create an address linked to an organisation`() {
-      val organisationCreated = createOrganisationWithFixedId(9001L)
-      val address = createAddress(organisationCreated.organisationId)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(9001L))
+      val address = testAPIClient.syncCreateAnAddress(syncCreateAddressRequest(organisation.organisationId))
 
       with(address) {
-        assertThat(organisationId).isEqualTo(organisationCreated.organisationId)
+        assertThat(organisationId).isEqualTo(organisation.organisationId)
         assertThat(organisationAddressId).isNotNull()
         assertThat(addressType).isEqualTo("HOME")
         assertThat(primaryAddress).isTrue()
@@ -136,8 +135,8 @@ class SyncAddressIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should update an address linked to an organisation`() {
-      val organisation = createOrganisationWithFixedId(9002L)
-      val address = createAddress(organisation.organisationId)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(9002L))
+      val address = testAPIClient.syncCreateAnAddress(syncCreateAddressRequest(organisation.organisationId))
       val updatedAddress = updateAddress(address.organisationAddressId, address.organisationId)
 
       with(updatedAddress) {
@@ -168,8 +167,8 @@ class SyncAddressIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should delete an address linked to an organisation`() {
-      val organisation = createOrganisationWithFixedId(9003L)
-      val address = createAddress(organisation.organisationId)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(9003L))
+      val address = testAPIClient.syncCreateAnAddress(syncCreateAddressRequest(organisation.organisationId))
 
       webTestClient.delete()
         .uri("/sync/organisation-address/{organisationAddressId}", address.organisationAddressId)
@@ -195,8 +194,8 @@ class SyncAddressIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should get a address by ID`() {
-      val organisation = createOrganisationWithFixedId(9004L)
-      val address = createAddress(organisation.organisationId)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(9004L))
+      val address = testAPIClient.syncCreateAnAddress(syncCreateAddressRequest(organisation.organisationId))
       val addressRetrieved = getAddressById(address.organisationAddressId)
 
       with(addressRetrieved) {
@@ -250,7 +249,6 @@ class SyncAddressIntegrationTest : PostgresIntegrationTestBase() {
     )
 
     private fun syncCreateOrganisationRequest(organisationId: Long) = SyncCreateOrganisationRequest(
-      // Sync creates supply a fixed ID from NOMIS (i.e. the corporate ID)
       organisationId = organisationId,
       organisationName = "Organisation123",
       programmeNumber = "PRG123",
@@ -261,34 +259,6 @@ class SyncAddressIntegrationTest : PostgresIntegrationTestBase() {
       createdTime = LocalDateTime.now(),
       createdBy = "CREATOR",
     )
-
-    private fun createOrganisationWithFixedId(organisationId: Long) =
-      webTestClient.post()
-        .uri("/sync/organisation")
-        .accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-        .bodyValue(syncCreateOrganisationRequest(organisationId))
-        .exchange()
-        .expectStatus()
-        .isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody(SyncOrganisationResponse::class.java)
-        .returnResult().responseBody!!
-
-    private fun createAddress(organisationId: Long) =
-      webTestClient.post()
-        .uri("/sync/organisation-address")
-        .accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-        .bodyValue(syncCreateAddressRequest(organisationId))
-        .exchange()
-        .expectStatus()
-        .isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody(SyncAddressResponse::class.java)
-        .returnResult().responseBody!!
 
     private fun getAddressById(organisationAddressId: Long) =
       webTestClient.get()

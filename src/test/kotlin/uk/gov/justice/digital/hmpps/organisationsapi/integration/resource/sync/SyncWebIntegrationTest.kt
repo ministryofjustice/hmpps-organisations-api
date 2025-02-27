@@ -10,7 +10,6 @@ import uk.gov.justice.digital.hmpps.organisationsapi.integration.PostgresIntegra
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateWebRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateWebRequest
-import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncOrganisationResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncWebResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OrganisationInfo
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEvent
@@ -104,11 +103,11 @@ class SyncWebIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should create a web address linked to an organisation`() {
-      val organisationCreated = createOrganisationWithFixedId(8001L)
-      val web = createWeb(organisationCreated.organisationId)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(8001L))
+      val web = testAPIClient.syncCreateAWebAddress(syncCreateWebRequest(organisation.organisationId))
 
       with(web) {
-        assertThat(this.organisationId).isEqualTo(organisationCreated.organisationId)
+        assertThat(this.organisationId).isEqualTo(organisation.organisationId)
         assertThat(webAddress).isEqualTo("www.created.com")
         assertThat(createdBy).isEqualTo("CREATOR")
         assertThat(createdTime).isAfter(LocalDateTime.now().minusMinutes(5))
@@ -124,8 +123,9 @@ class SyncWebIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should update a web address linked to an organisation`() {
-      val organisation = createOrganisationWithFixedId(8002L)
-      val web = createWeb(organisation.organisationId)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(8002L))
+      val web = testAPIClient.syncCreateAWebAddress(syncCreateWebRequest(organisation.organisationId))
+
       val updatedWeb = updateWeb(web.organisationWebAddressId, web.organisationId)
 
       with(updatedWeb) {
@@ -146,8 +146,8 @@ class SyncWebIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should delete a web address linked to an organisation`() {
-      val organisation = createOrganisationWithFixedId(8003L)
-      val web = createWeb(organisation.organisationId)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(8003L))
+      val web = testAPIClient.syncCreateAWebAddress(syncCreateWebRequest(organisation.organisationId))
 
       webTestClient.delete()
         .uri("/sync/organisation-web/{organisationWebId}", web.organisationWebAddressId)
@@ -173,8 +173,9 @@ class SyncWebIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should get a web address by ID`() {
-      val organisation = createOrganisationWithFixedId(8004L)
-      val web = createWeb(organisation.organisationId)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(8004L))
+      val web = testAPIClient.syncCreateAWebAddress(syncCreateWebRequest(organisation.organisationId))
+
       val webRetrieved = getWebById(web.organisationWebAddressId)
 
       with(webRetrieved) {
@@ -203,7 +204,6 @@ class SyncWebIntegrationTest : PostgresIntegrationTestBase() {
     )
 
     private fun syncCreateOrganisationRequest(organisationId: Long) = SyncCreateOrganisationRequest(
-      // Sync creates supply a fixed ID from NOMIS (i.e. the corporate ID)
       organisationId = organisationId,
       organisationName = "Organisation123",
       programmeNumber = "PRG123",
@@ -214,34 +214,6 @@ class SyncWebIntegrationTest : PostgresIntegrationTestBase() {
       createdTime = LocalDateTime.now(),
       createdBy = "CREATOR",
     )
-
-    private fun createOrganisationWithFixedId(organisationId: Long) =
-      webTestClient.post()
-        .uri("/sync/organisation")
-        .accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-        .bodyValue(syncCreateOrganisationRequest(organisationId))
-        .exchange()
-        .expectStatus()
-        .isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody(SyncOrganisationResponse::class.java)
-        .returnResult().responseBody!!
-
-    private fun createWeb(organisationId: Long) =
-      webTestClient.post()
-        .uri("/sync/organisation-web")
-        .accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-        .bodyValue(syncCreateWebRequest(organisationId))
-        .exchange()
-        .expectStatus()
-        .isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody(SyncWebResponse::class.java)
-        .returnResult().responseBody!!
 
     private fun getWebById(organisationWebId: Long) =
       webTestClient.get()

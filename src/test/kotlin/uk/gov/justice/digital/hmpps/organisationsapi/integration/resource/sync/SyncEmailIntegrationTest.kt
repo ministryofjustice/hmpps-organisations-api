@@ -11,7 +11,6 @@ import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCrea
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateEmailRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncEmailResponse
-import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncOrganisationResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OrganisationInfo
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEvent
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.Source
@@ -104,11 +103,11 @@ class SyncEmailIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should create a email address linked to an organisation`() {
-      val organisationCreated = createOrganisationWithFixedId(7001L)
-      val email = createEmail(organisationCreated.organisationId)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(7001L))
+      val email = testAPIClient.syncCreateAnEmailAddress(syncCreateEmailRequest(organisation.organisationId))
 
       with(email) {
-        assertThat(this.organisationId).isEqualTo(organisationCreated.organisationId)
+        assertThat(this.organisationId).isEqualTo(organisation.organisationId)
         assertThat(emailAddress).isEqualTo("created@example.com")
         assertThat(createdBy).isEqualTo("CREATOR")
         assertThat(createdTime).isAfter(LocalDateTime.now().minusMinutes(5))
@@ -124,8 +123,9 @@ class SyncEmailIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should update an email address linked to an organisation`() {
-      val organisation = createOrganisationWithFixedId(7002L)
-      val email = createEmail(organisation.organisationId)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(7002L))
+      val email = testAPIClient.syncCreateAnEmailAddress(syncCreateEmailRequest(organisation.organisationId))
+
       val updatedEmail = updateEmail(email.organisationEmailId, email.organisationId)
 
       with(updatedEmail) {
@@ -146,8 +146,8 @@ class SyncEmailIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should delete an email address linked to an organisation`() {
-      val organisation = createOrganisationWithFixedId(7003L)
-      val email = createEmail(organisation.organisationId)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(7003L))
+      val email = testAPIClient.syncCreateAnEmailAddress(syncCreateEmailRequest(organisation.organisationId))
 
       webTestClient.delete()
         .uri("/sync/organisation-email/{organisationEmailId}", email.organisationEmailId)
@@ -173,8 +173,8 @@ class SyncEmailIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should get an email address by ID`() {
-      val organisation = createOrganisationWithFixedId(7004L)
-      val email = createEmail(organisation.organisationId)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(7004L))
+      val email = testAPIClient.syncCreateAnEmailAddress(syncCreateEmailRequest(organisation.organisationId))
       val emailRetrieved = getEmailById(email.organisationEmailId)
 
       with(emailRetrieved) {
@@ -203,7 +203,6 @@ class SyncEmailIntegrationTest : PostgresIntegrationTestBase() {
     )
 
     private fun syncCreateOrganisationRequest(organisationId: Long) = SyncCreateOrganisationRequest(
-      // Sync creates supply a fixed ID from NOMIS (i.e. the corporate ID)
       organisationId = organisationId,
       organisationName = "Organisation123",
       programmeNumber = "PRG123",
@@ -214,34 +213,6 @@ class SyncEmailIntegrationTest : PostgresIntegrationTestBase() {
       createdTime = LocalDateTime.now(),
       createdBy = "CREATOR",
     )
-
-    private fun createOrganisationWithFixedId(organisationId: Long) =
-      webTestClient.post()
-        .uri("/sync/organisation")
-        .accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-        .bodyValue(syncCreateOrganisationRequest(organisationId))
-        .exchange()
-        .expectStatus()
-        .isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody(SyncOrganisationResponse::class.java)
-        .returnResult().responseBody!!
-
-    private fun createEmail(organisationId: Long) =
-      webTestClient.post()
-        .uri("/sync/organisation-email")
-        .accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-        .bodyValue(syncCreateEmailRequest(organisationId))
-        .exchange()
-        .expectStatus()
-        .isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody(SyncEmailResponse::class.java)
-        .returnResult().responseBody!!
 
     private fun getEmailById(organisationEmailId: Long) =
       webTestClient.get()

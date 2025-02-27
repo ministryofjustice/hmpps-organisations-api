@@ -6,10 +6,22 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.organisationsapi.model.ReferenceCodeGroup
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.OrganisationSearchRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.migrate.MigrateOrganisationRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateAddressPhoneRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateAddressRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateEmailRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateOrganisationRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreatePhoneRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateWebRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.OrganisationDetails
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.OrganisationSummary
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.ReferenceCode
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.migrate.MigrateOrganisationResponse
+import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncAddressPhoneResponse
+import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncAddressResponse
+import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncEmailResponse
+import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncOrganisationResponse
+import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncPhoneResponse
+import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncWebResponse
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
 import java.net.URI
@@ -69,6 +81,86 @@ class TestAPIClient(private val webTestClient: WebTestClient, private val jwtAut
     .expectHeader().contentType(MediaType.APPLICATION_JSON)
     .expectBodyList(ReferenceCode::class.java)
     .returnResult().responseBody
+
+  fun syncCreateAnOrganisation(request: SyncCreateOrganisationRequest) = webTestClient.post()
+    .uri("/sync/organisation")
+    .accept(MediaType.APPLICATION_JSON)
+    .contentType(MediaType.APPLICATION_JSON)
+    .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
+    .bodyValue(request)
+    .exchange()
+    .expectStatus()
+    .isOk
+    .expectHeader().contentType(MediaType.APPLICATION_JSON)
+    .expectBody(SyncOrganisationResponse::class.java)
+    .returnResult().responseBody!!
+
+  fun syncCreateAnEmailAddress(request: SyncCreateEmailRequest) =
+    webTestClient.post()
+      .uri("/sync/organisation-email")
+      .accept(MediaType.APPLICATION_JSON)
+      .contentType(MediaType.APPLICATION_JSON)
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
+      .bodyValue(request)
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectHeader().contentType(MediaType.APPLICATION_JSON)
+      .expectBody(SyncEmailResponse::class.java)
+      .returnResult().responseBody!!
+
+  fun syncCreateAnAddress(request: SyncCreateAddressRequest) = webTestClient.post()
+    .uri("/sync/organisation-address")
+    .accept(MediaType.APPLICATION_JSON)
+    .contentType(MediaType.APPLICATION_JSON)
+    .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
+    .bodyValue(request)
+    .exchange()
+    .expectStatus()
+    .isOk
+    .expectHeader().contentType(MediaType.APPLICATION_JSON)
+    .expectBody(SyncAddressResponse::class.java)
+    .returnResult().responseBody!!
+
+  fun syncCreateAnAddressPhone(request: SyncCreateAddressPhoneRequest) = webTestClient.post()
+    .uri("/sync/organisation-address-phone")
+    .accept(MediaType.APPLICATION_JSON)
+    .contentType(MediaType.APPLICATION_JSON)
+    .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
+    .bodyValue(request)
+    .exchange()
+    .expectStatus()
+    .isOk
+    .expectHeader().contentType(MediaType.APPLICATION_JSON)
+    .expectBody(SyncAddressPhoneResponse::class.java)
+    .returnResult().responseBody!!
+
+  fun syncCreateAPhone(request: SyncCreatePhoneRequest) = webTestClient.post()
+    .uri("/sync/organisation-phone")
+    .accept(MediaType.APPLICATION_JSON)
+    .contentType(MediaType.APPLICATION_JSON)
+    .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
+    .bodyValue(request)
+    .exchange()
+    .expectStatus()
+    .isOk
+    .expectHeader().contentType(MediaType.APPLICATION_JSON)
+    .expectBody(SyncPhoneResponse::class.java)
+    .returnResult().responseBody!!
+
+  fun syncCreateAWebAddress(request: SyncCreateWebRequest) =
+    webTestClient.post()
+      .uri("/sync/organisation-web")
+      .accept(MediaType.APPLICATION_JSON)
+      .contentType(MediaType.APPLICATION_JSON)
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
+      .bodyValue(request)
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectHeader().contentType(MediaType.APPLICATION_JSON)
+      .expectBody(SyncWebResponse::class.java)
+      .returnResult().responseBody!!
 
   fun getBadResponseErrors(uri: URI) = webTestClient.get()
     .uri(uri.toString())
