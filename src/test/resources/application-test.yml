@@ -40,5 +40,9 @@ feature:
         created: true
         updated: true
         deleted: true
+      organisation-address-phone:
+        created: true
+        updated: true
+        deleted: true
       organisation-types:
         updated: true

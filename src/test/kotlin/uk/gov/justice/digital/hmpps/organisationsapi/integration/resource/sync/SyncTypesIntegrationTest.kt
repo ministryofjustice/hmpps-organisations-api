@@ -11,7 +11,6 @@ import uk.gov.justice.digital.hmpps.organisationsapi.integration.PostgresIntegra
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncOrganisationType
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateTypesRequest
-import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncOrganisationResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncTypesResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OrganisationInfo
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEvent
@@ -71,7 +70,7 @@ class SyncTypesIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should update the types linked to an organisation`() {
-      val organisation = createOrganisationWithFixedId(4001L)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(4001L))
 
       val response = updateTypes(organisation.organisationId)
 
@@ -92,7 +91,7 @@ class SyncTypesIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should get an empty list of types when none exist for an organisation ID`() {
-      val organisation = createOrganisationWithFixedId(4002L)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(4002L))
 
       val response = getTypesByOrganisationId(4002L)
 
@@ -104,7 +103,7 @@ class SyncTypesIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should get a list of types associated to an organisation by organisation ID`() {
-      val organisation = createOrganisationWithFixedId(4003L)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(4003L))
 
       updateTypes(organisation.organisationId)
 
@@ -123,7 +122,8 @@ class SyncTypesIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should replace one set of organisation types with another`() {
-      val organisation = createOrganisationWithFixedId(4004L)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(4004L))
+
       val response = updateTypes(organisation.organisationId)
 
       with(response) {
@@ -188,20 +188,6 @@ class SyncTypesIntegrationTest : PostgresIntegrationTestBase() {
       createdTime = LocalDateTime.now(),
       createdBy = "CREATOR",
     )
-
-    private fun createOrganisationWithFixedId(organisationId: Long) =
-      webTestClient.post()
-        .uri("/sync/organisation")
-        .accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-        .bodyValue(syncCreateOrganisationRequest(organisationId))
-        .exchange()
-        .expectStatus()
-        .isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody(SyncOrganisationResponse::class.java)
-        .returnResult().responseBody!!
 
     private fun getTypesByOrganisationId(organisationId: Long) =
       webTestClient.get()

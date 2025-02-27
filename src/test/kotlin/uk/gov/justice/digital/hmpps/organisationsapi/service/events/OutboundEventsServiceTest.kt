@@ -211,7 +211,7 @@ class OutboundEventsServiceTest {
     )
   }
 
-  // ============= Address ==================
+  // ============= Addresses ==================
 
   @Test
   fun `address created event is sent to the events publisher`() {
@@ -255,6 +255,53 @@ class OutboundEventsServiceTest {
         source = Source.DPS,
       ),
       expectedDescription = "An organisation address has been deleted",
+    )
+  }
+
+  // ============= Address-linked phone numbers ==================
+
+  @Test
+  fun `address phone created event is sent to the events publisher`() {
+    featureSwitches.stub { on { isEnabled(OutboundEvent.ORGANISATION_ADDRESS_PHONE_CREATED) } doReturn true }
+    outboundEventsService.send(OutboundEvent.ORGANISATION_ADDRESS_PHONE_CREATED, 1L, 2L)
+    verify(
+      expectedEventType = "organisations-api.organisation-address-phone.created",
+      expectedAdditionalInformation = OrganisationInfo(
+        organisationId = 1L,
+        identifier = 2L,
+        source = Source.DPS,
+      ),
+      expectedDescription = "An organisation address phone number has been created",
+    )
+  }
+
+  @Test
+  fun `address phone updated event is sent to the events publisher`() {
+    featureSwitches.stub { on { isEnabled(OutboundEvent.ORGANISATION_ADDRESS_PHONE_UPDATED) } doReturn true }
+    outboundEventsService.send(OutboundEvent.ORGANISATION_ADDRESS_PHONE_UPDATED, 1L, 2L)
+    verify(
+      expectedEventType = "organisations-api.organisation-address-phone.updated",
+      expectedAdditionalInformation = OrganisationInfo(
+        organisationId = 1L,
+        identifier = 2L,
+        source = Source.DPS,
+      ),
+      expectedDescription = "An organisation address phone number has been updated",
+    )
+  }
+
+  @Test
+  fun `address phone deleted event is sent to the events publisher`() {
+    featureSwitches.stub { on { isEnabled(OutboundEvent.ORGANISATION_ADDRESS_PHONE_DELETED) } doReturn true }
+    outboundEventsService.send(OutboundEvent.ORGANISATION_ADDRESS_PHONE_DELETED, 1L, 2L)
+    verify(
+      expectedEventType = "organisations-api.organisation-address-phone.deleted",
+      expectedAdditionalInformation = OrganisationInfo(
+        organisationId = 1L,
+        identifier = 2L,
+        source = Source.DPS,
+      ),
+      expectedDescription = "An organisation address phone number has been deleted",
     )
   }
 

@@ -10,7 +10,6 @@ import uk.gov.justice.digital.hmpps.organisationsapi.integration.PostgresIntegra
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreatePhoneRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdatePhoneRequest
-import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncOrganisationResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncPhoneResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OrganisationInfo
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEvent
@@ -104,11 +103,11 @@ class SyncPhoneIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should create a phone number linked to an organisation`() {
-      val organisationCreated = createOrganisationWithFixedId(6001L)
-      val phone = createPhone(organisationCreated.organisationId)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(6001L))
+      val phone = testAPIClient.syncCreateAPhone(syncCreatePhoneRequest(organisation.organisationId))
 
       with(phone) {
-        assertThat(this.organisationId).isEqualTo(organisationCreated.organisationId)
+        assertThat(this.organisationId).isEqualTo(organisation.organisationId)
         assertThat(phoneType).isEqualTo("MOB")
         assertThat(phoneNumber).isEqualTo("07999 123456")
         assertThat(extNumber).isNull()
@@ -126,8 +125,9 @@ class SyncPhoneIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should update a phone number linked to an organisation`() {
-      val organisation = createOrganisationWithFixedId(6002L)
-      val phone = createPhone(organisation.organisationId)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(6002L))
+      val phone = testAPIClient.syncCreateAPhone(syncCreatePhoneRequest(organisation.organisationId))
+
       val updatedPhone = updatePhone(phone.organisationPhoneId, phone.organisationId)
 
       with(updatedPhone) {
@@ -150,8 +150,8 @@ class SyncPhoneIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should delete a phone number linked to an organisation`() {
-      val organisation = createOrganisationWithFixedId(6003L)
-      val phone = createPhone(organisation.organisationId)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(6003L))
+      val phone = testAPIClient.syncCreateAPhone(syncCreatePhoneRequest(organisation.organisationId))
 
       webTestClient.delete()
         .uri("/sync/organisation-phone/{organisationPhoneId}", phone.organisationPhoneId)
@@ -177,8 +177,9 @@ class SyncPhoneIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should get a phone number by ID`() {
-      val organisation = createOrganisationWithFixedId(6004L)
-      val phone = createPhone(organisation.organisationId)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(6004L))
+      val phone = testAPIClient.syncCreateAPhone(syncCreatePhoneRequest(organisation.organisationId))
+
       val phoneRetrieved = getPhoneById(phone.organisationPhoneId)
 
       with(phoneRetrieved) {
@@ -213,7 +214,6 @@ class SyncPhoneIntegrationTest : PostgresIntegrationTestBase() {
     )
 
     private fun syncCreateOrganisationRequest(organisationId: Long) = SyncCreateOrganisationRequest(
-      // Sync creates supply a fixed ID from NOMIS (i.e. the corporate ID)
       organisationId = organisationId,
       organisationName = "Organisation123",
       programmeNumber = "PRG123",
@@ -224,34 +224,6 @@ class SyncPhoneIntegrationTest : PostgresIntegrationTestBase() {
       createdTime = LocalDateTime.now(),
       createdBy = "CREATOR",
     )
-
-    private fun createOrganisationWithFixedId(organisationId: Long) =
-      webTestClient.post()
-        .uri("/sync/organisation")
-        .accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-        .bodyValue(syncCreateOrganisationRequest(organisationId))
-        .exchange()
-        .expectStatus()
-        .isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody(SyncOrganisationResponse::class.java)
-        .returnResult().responseBody!!
-
-    private fun createPhone(organisationId: Long) =
-      webTestClient.post()
-        .uri("/sync/organisation-phone")
-        .accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-        .bodyValue(syncCreatePhoneRequest(organisationId))
-        .exchange()
-        .expectStatus()
-        .isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody(SyncPhoneResponse::class.java)
-        .returnResult().responseBody!!
 
     private fun getPhoneById(organisationPhoneId: Long) =
       webTestClient.get()

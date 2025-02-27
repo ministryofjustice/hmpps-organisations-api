@@ -104,7 +104,7 @@ class SyncOrganisationsIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should create and then get an organisation by ID`() {
-      val organisationCreated = createOrganisationWithFixedId(5001L)
+      val organisationCreated = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(5001L))
       val organisation = getOrganisationById(organisationCreated.organisationId)
 
       with(organisation) {
@@ -129,40 +129,16 @@ class SyncOrganisationsIntegrationTest : PostgresIntegrationTestBase() {
     }
 
     @Test
-    fun `should create a new organisation with fixed ID`() {
-      val organisation = createOrganisationWithFixedId(5002L)
+    fun `should create and then update an organisation`() {
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(5002L))
       with(organisation) {
         assertThat(this.organisationId).isEqualTo(5002L)
-        assertThat(organisationName).isEqualTo("Organisation123")
-        assertThat(programmeNumber).isEqualTo("PRG123")
-        assertThat(vatNumber).isEqualTo("VAT123")
-        assertThat(caseloadId).isEqualTo("HEI")
-        assertThat(comments).isEqualTo("comment123")
-        assertThat(active).isEqualTo(true)
-        assertThat(deactivatedDate).isNull()
-        assertThat(createdBy).isEqualTo("CREATOR")
-        assertThat(createdTime).isAfter(LocalDateTime.now().minusMinutes(5))
-        assertThat(updatedBy).isNull()
-        assertThat(updatedTime).isNull()
-      }
-
-      stubEvents.assertHasEvent(
-        event = OutboundEvent.ORGANISATION_CREATED,
-        additionalInfo = OrganisationInfo(organisation.organisationId, organisation.organisationId, Source.NOMIS),
-      )
-    }
-
-    @Test
-    fun `should create and then update an organisation`() {
-      val organisation = createOrganisationWithFixedId(5003L)
-      with(organisation) {
-        assertThat(this.organisationId).isEqualTo(5003L)
         assertThat(organisationName).isEqualTo("Organisation123")
       }
 
       val updated = updateOrganisation(organisation.organisationId)
       with(updated) {
-        assertThat(this.organisationId).isEqualTo(5003L)
+        assertThat(this.organisationId).isEqualTo(organisation.organisationId)
         assertThat(organisationName).isEqualTo("Organisation321")
         assertThat(programmeNumber).isEqualTo("PRG321")
         assertThat(vatNumber).isEqualTo("VAT321")
@@ -188,9 +164,9 @@ class SyncOrganisationsIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should create and then delete an organisation`() {
-      val organisation = createOrganisationWithFixedId(5004L)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(5003L))
       with(organisation) {
-        assertThat(this.organisationId).isEqualTo(5004L)
+        assertThat(this.organisationId).isEqualTo(5003L)
         assertThat(organisationName).isEqualTo("Organisation123")
       }
 
@@ -223,9 +199,10 @@ class SyncOrganisationsIntegrationTest : PostgresIntegrationTestBase() {
 
     @Test
     fun `should report a conflict when creating an organisation ID that already exists`() {
-      val organisation = createOrganisationWithFixedId(5005L)
+      val organisation = testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(5004L))
+
       with(organisation) {
-        assertThat(this.organisationId).isEqualTo(5005L)
+        assertThat(this.organisationId).isEqualTo(5004L)
         assertThat(organisationName).isEqualTo("Organisation123")
       }
 
@@ -250,7 +227,7 @@ class SyncOrganisationsIntegrationTest : PostgresIntegrationTestBase() {
         .returnResult().responseBody!!
 
       assertThat(expectedError.status).isEqualTo(HttpStatus.CONFLICT.value())
-      assertThat(expectedError.userMessage).isEqualTo("Sync: Duplicate organisation ID received 5005")
+      assertThat(expectedError.userMessage).isEqualTo("Sync: Duplicate organisation ID received 5004")
 
       stubEvents.assertHasNoEvents(OutboundEvent.ORGANISATION_CREATED)
     }
@@ -279,20 +256,6 @@ class SyncOrganisationsIntegrationTest : PostgresIntegrationTestBase() {
       createdTime = LocalDateTime.now(),
       createdBy = "CREATOR",
     )
-
-    private fun createOrganisationWithFixedId(organisationId: Long) =
-      webTestClient.post()
-        .uri("/sync/organisation")
-        .accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-        .bodyValue(syncCreateOrganisationRequest(organisationId))
-        .exchange()
-        .expectStatus()
-        .isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody(SyncOrganisationResponse::class.java)
-        .returnResult().responseBody!!
 
     private fun getOrganisationById(organisationId: Long) =
       webTestClient.get()

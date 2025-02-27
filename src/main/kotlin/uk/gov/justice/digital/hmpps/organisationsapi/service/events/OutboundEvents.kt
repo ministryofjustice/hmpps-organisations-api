@@ -112,6 +112,27 @@ enum class OutboundEvent(val eventType: String) {
       description = "An organisation address has been deleted",
     )
   },
+  ORGANISATION_ADDRESS_PHONE_CREATED("organisations-api.organisation-address-phone.created") {
+    override fun event(additionalInformation: AdditionalInformation) = OutboundHMPPSDomainEvent(
+      eventType = eventType,
+      additionalInformation = additionalInformation,
+      description = "An organisation address phone number has been created",
+    )
+  },
+  ORGANISATION_ADDRESS_PHONE_UPDATED("organisations-api.organisation-address-phone.updated") {
+    override fun event(additionalInformation: AdditionalInformation) = OutboundHMPPSDomainEvent(
+      eventType = eventType,
+      additionalInformation = additionalInformation,
+      description = "An organisation address phone number has been updated",
+    )
+  },
+  ORGANISATION_ADDRESS_PHONE_DELETED("organisations-api.organisation-address-phone.deleted") {
+    override fun event(additionalInformation: AdditionalInformation) = OutboundHMPPSDomainEvent(
+      eventType = eventType,
+      additionalInformation = additionalInformation,
+      description = "An organisation address phone number has been deleted",
+    )
+  },
   ORGANISATION_TYPES_UPDATED("organisations-api.organisation-types.updated") {
     override fun event(additionalInformation: AdditionalInformation) = OutboundHMPPSDomainEvent(
       eventType = eventType,

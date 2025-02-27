@@ -27,7 +27,7 @@ data class OrganisationAddressPhoneEntity(
   @Column(updatable = false)
   val createdTime: LocalDateTime,
 
-  val updatedBy: String?,
+  val updatedBy: String? = null,
 
-  val updatedTime: LocalDateTime?,
+  val updatedTime: LocalDateTime? = null,
 )
