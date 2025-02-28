@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.context.TestPropertySource
 import uk.gov.justice.digital.hmpps.organisationsapi.integration.PostgresIntegrationTestBase
+import uk.gov.justice.digital.hmpps.organisationsapi.integration.helper.hasSize
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncOrganisationResponse
@@ -230,6 +231,33 @@ class SyncOrganisationsIntegrationTest : PostgresIntegrationTestBase() {
       assertThat(expectedError.userMessage).isEqualTo("Sync: Duplicate organisation ID received 5004")
 
       stubEvents.assertHasNoEvents(OutboundEvent.ORGANISATION_CREATED)
+    }
+
+    @Test
+    fun `should support pageable organisation IDs for reconciliation`() {
+      testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(5005L))
+      testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(5006L))
+      testAPIClient.syncCreateAnOrganisation(syncCreateOrganisationRequest(5007L))
+
+      val firstPage = testAPIClient.syncReconcileOrganisations(0, 2)
+      with(firstPage) {
+        assertThat(totalElements).isGreaterThanOrEqualTo(3)
+        assertThat(content.hasSize(2))
+        assertThat(content).extracting("organisationId").hasSize(2)
+      }
+
+      val secondPage = testAPIClient.syncReconcileOrganisations(1, 2)
+      with(secondPage) {
+        assertThat(totalElements).isGreaterThanOrEqualTo(3)
+        assertThat(content.size).isGreaterThanOrEqualTo(1)
+      }
+
+      val bigPage = testAPIClient.syncReconcileOrganisations(0, 100)
+      with(bigPage) {
+        assertThat(totalElements).isGreaterThanOrEqualTo(3)
+        assertThat(content.size).isGreaterThanOrEqualTo(3)
+        assertThat(content).extracting("organisationId").containsAll(listOf(5005L, 5006L, 5007L))
+      }
     }
 
     private fun syncUpdateOrganisationRequest(organisationId: Long) = SyncUpdateOrganisationRequest(

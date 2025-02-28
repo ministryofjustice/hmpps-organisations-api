@@ -1,7 +1,9 @@
 package uk.gov.justice.digital.hmpps.organisationsapi.mapping.sync
 
+import org.springframework.data.domain.Page
 import uk.gov.justice.digital.hmpps.organisationsapi.entity.OrganisationWithFixedIdEntity
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateOrganisationRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncOrganisationId
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncOrganisationResponse
 
 fun OrganisationWithFixedIdEntity.toModel(): SyncOrganisationResponse = SyncOrganisationResponse(
@@ -35,3 +37,7 @@ fun SyncCreateOrganisationRequest.toEntity() = OrganisationWithFixedIdEntity(
   updatedBy = this.updatedBy,
   updatedTime = this.updatedTime,
 )
+
+fun OrganisationWithFixedIdEntity.toModelIds(): SyncOrganisationId = SyncOrganisationId(organisationId = this.organisationId)
+
+fun Page<OrganisationWithFixedIdEntity>.toModelIds(): Page<SyncOrganisationId> = map { it.toModelIds() }
