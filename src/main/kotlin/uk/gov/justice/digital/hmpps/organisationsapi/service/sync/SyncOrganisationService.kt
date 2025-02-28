@@ -2,12 +2,16 @@ package uk.gov.justice.digital.hmpps.organisationsapi.service.sync
 
 import jakarta.persistence.EntityNotFoundException
 import org.slf4j.LoggerFactory
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.digital.hmpps.organisationsapi.mapping.sync.toEntity
 import uk.gov.justice.digital.hmpps.organisationsapi.mapping.sync.toModel
+import uk.gov.justice.digital.hmpps.organisationsapi.mapping.sync.toModelIds
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateOrganisationRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncOrganisationId
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncOrganisationResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.repository.OrganisationWithFixedIdRepository
 
@@ -78,4 +82,7 @@ class SyncOrganisationService(
 
     return organisationRepository.saveAndFlush(changedOrganisation).toModel()
   }
+
+  fun getOrganisationIds(pageable: Pageable): Page<SyncOrganisationId> =
+    organisationRepository.findAll(pageable).toModelIds()
 }

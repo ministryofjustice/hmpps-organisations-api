@@ -19,6 +19,7 @@ import uk.gov.justice.digital.hmpps.organisationsapi.model.response.migrate.Migr
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncAddressPhoneResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncAddressResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncEmailResponse
+import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncOrganisationId
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncOrganisationResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncPhoneResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncWebResponse
@@ -162,6 +163,17 @@ class TestAPIClient(private val webTestClient: WebTestClient, private val jwtAut
       .expectBody(SyncWebResponse::class.java)
       .returnResult().responseBody!!
 
+  fun syncReconcileOrganisations(page: Long = 0, size: Long = 10) = webTestClient.get()
+    .uri("/sync/organisations/reconcile?page=$page&size=$size")
+    .accept(MediaType.APPLICATION_JSON)
+    .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
+    .exchange()
+    .expectStatus()
+    .isOk
+    .expectHeader().contentType(MediaType.APPLICATION_JSON)
+    .expectBody(OrganisationIdsResponse::class.java)
+    .returnResult().responseBody!!
+
   fun getBadResponseErrors(uri: URI) = webTestClient.get()
     .uri(uri.toString())
     .accept(MediaType.APPLICATION_JSON)
@@ -224,5 +236,19 @@ class TestAPIClient(private val webTestClient: WebTestClient, private val jwtAut
     val empty: Boolean,
     val unsorted: Boolean,
     val sorted: Boolean,
+  )
+
+  data class OrganisationIdsResponse(
+    val content: List<SyncOrganisationId>,
+    val pageable: ReturnedPageable,
+    val last: Boolean,
+    val totalPages: Int,
+    val totalElements: Int,
+    val first: Boolean,
+    val size: Int,
+    val number: Int,
+    val sort: ReturnedSort,
+    val numberOfElements: Int,
+    val empty: Boolean,
   )
 }

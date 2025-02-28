@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.organisationsapi.facade
 
+import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateAddressPhoneRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateAddressRequest
@@ -89,6 +90,8 @@ class SyncFacade(
         source = Source.NOMIS,
       )
     }
+
+  fun getIds(pageable: Pageable) = syncOrganisationService.getOrganisationIds(pageable)
 
   // ================================================================
   //  Organisation phone numbers

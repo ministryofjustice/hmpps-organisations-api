@@ -9,6 +9,11 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
+import org.springdoc.core.annotations.ParameterObject
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort.Direction
+import org.springframework.data.web.PageableDefault
 import org.springframework.http.MediaType
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.web.bind.annotation.DeleteMapping
@@ -23,6 +28,7 @@ import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.organisationsapi.facade.SyncFacade
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncCreateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.sync.SyncUpdateOrganisationRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncOrganisationId
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.sync.SyncOrganisationResponse
 import uk.gov.justice.digital.hmpps.organisationsapi.swagger.AuthApiResponses
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
@@ -174,4 +180,25 @@ class SyncOrganisationController(val syncFacade: SyncFacade) {
     @PathVariable organisationId: Long,
     @Valid @RequestBody updateOrganisationRequest: SyncUpdateOrganisationRequest,
   ) = syncFacade.updateOrganisation(organisationId, updateOrganisationRequest)
+
+  @GetMapping("/organisations/reconcile")
+  @Operation(
+    summary = "Reconciliation endpoint",
+    description = "Get a paged list of existing organisation IDs to reconcile against",
+    security = [SecurityRequirement(name = "bearer")],
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "Pageable organisation IDs returned",
+      ),
+    ],
+  )
+  @PreAuthorize("hasAnyRole('ROLE_ORGANISATIONS_MIGRATION')")
+  fun reconcileOrganisations(
+    @ParameterObject
+    @PageableDefault(sort = ["organisationId"], size = 100, direction = Direction.ASC)
+    pageable: Pageable,
+  ): Page<SyncOrganisationId> = syncFacade.getIds(pageable)
 }
