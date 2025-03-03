@@ -7,7 +7,7 @@ import uk.gov.justice.digital.hmpps.organisationsapi.model.response.Organisation
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.OrganisationAddressPhoneDetails
 
 fun OrganisationAddressDetailsEntity.toModel(
-  phoneNumbers: List<Pair<OrganisationAddressPhoneEntity, OrganisationPhoneDetailsEntity>>,
+  phoneNumbers: List<Pair<OrganisationAddressPhoneEntity, OrganisationPhoneDetailsEntity?>>,
 ): OrganisationAddressDetails = OrganisationAddressDetails(
   organisationAddressId = organisationAddressId,
   organisationId = organisationId,
@@ -35,21 +35,24 @@ fun OrganisationAddressDetailsEntity.toModel(
   specialNeedsCodeDescription = specialNeedsCodeDescription,
   contactPersonName = contactPersonName,
   businessHours = businessHours,
-  phoneNumbers = phoneNumbers.map { (addressPhoneEntity, phoneEntity) ->
-    OrganisationAddressPhoneDetails(
-      organisationAddressPhoneId = addressPhoneEntity.organisationAddressPhoneId,
-      organisationPhoneId = phoneEntity.organisationPhoneId,
-      organisationAddressId = organisationAddressId,
-      organisationId = phoneEntity.organisationId,
-      phoneType = phoneEntity.phoneType,
-      phoneTypeDescription = phoneEntity.phoneTypeDescription,
-      phoneNumber = phoneEntity.phoneNumber,
-      extNumber = phoneEntity.extNumber,
-      createdBy = phoneEntity.createdBy,
-      createdTime = phoneEntity.createdTime,
-      updatedBy = phoneEntity.updatedBy,
-      updatedTime = phoneEntity.updatedTime,
-    )
+  phoneNumbers = phoneNumbers.mapNotNull { (addressPhoneEntity, phoneEntity) ->
+    when {
+      phoneEntity != null -> OrganisationAddressPhoneDetails(
+        organisationAddressPhoneId = addressPhoneEntity.organisationAddressPhoneId,
+        organisationPhoneId = phoneEntity.organisationPhoneId,
+        organisationAddressId = organisationAddressId,
+        organisationId = phoneEntity.organisationId,
+        phoneType = phoneEntity.phoneType,
+        phoneTypeDescription = phoneEntity.phoneTypeDescription,
+        phoneNumber = phoneEntity.phoneNumber,
+        extNumber = phoneEntity.extNumber,
+        createdBy = phoneEntity.createdBy,
+        createdTime = phoneEntity.createdTime,
+        updatedBy = phoneEntity.updatedBy,
+        updatedTime = phoneEntity.updatedTime,
+      )
+      else -> null
+    }
   },
   createdBy = createdBy,
   createdTime = createdTime,
