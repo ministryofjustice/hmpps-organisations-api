@@ -101,6 +101,19 @@ class GetOrganisationByOrganisationIdIntegrationTest : SecureApiIntegrationTestB
             ).setCreatedAndModified(),
           ),
         ).setCreatedAndModified(),
+        MigrateOrganisationAddress(
+          nomisAddressId = RandomUtils.secure().randomLong(),
+          type = "BUS",
+          primaryAddress = false,
+          mailAddress = false,
+          serviceAddress = false,
+          noFixedAddress = false,
+          locality = "locality",
+          postCode = "D2 2DN",
+          startDate = LocalDate.of(2020, 3, 3),
+          endDate = LocalDate.of(2021, 4, 4),
+          phoneNumbers = emptyList(),
+        ).setCreatedAndModified(),
       ),
     ).setCreatedAndModified()
 
@@ -158,7 +171,7 @@ class GetOrganisationByOrganisationIdIntegrationTest : SecureApiIntegrationTestB
         assertThat(updatedBy).isEqualTo("MODIFIED")
         assertThat(updatedTime).isEqualTo(LocalDateTime.of(2020, 3, 4, 11, 45))
       }
-      assertThat(addresses).hasSize(1)
+      assertThat(addresses).hasSize(2)
       with(addresses[0]) {
         assertThat(addressType).isEqualTo("BUS")
         assertThat(addressTypeDescription).isEqualTo("Business address")
@@ -199,6 +212,13 @@ class GetOrganisationByOrganisationIdIntegrationTest : SecureApiIntegrationTestB
           assertThat(updatedBy).isEqualTo("MODIFIED")
           assertThat(updatedTime).isEqualTo(LocalDateTime.of(2020, 3, 4, 11, 45))
         }
+      }
+      with(addresses[1]) {
+        // Making sure phone numbers are propagated across ALL addresses for this organisation
+        assertThat(phoneNumbers).isEmpty()
+        assertThat(postcode).isEqualTo("D2 2DN")
+        assertThat(startDate).isEqualTo(LocalDate.of(2020, 3, 3))
+        assertThat(endDate).isEqualTo(LocalDate.of(2021, 4, 4))
       }
     }
   }

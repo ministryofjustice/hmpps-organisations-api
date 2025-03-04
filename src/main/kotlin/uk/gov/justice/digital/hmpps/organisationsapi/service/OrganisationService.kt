@@ -40,10 +40,13 @@ class OrganisationService(
   fun getOrganisationById(id: Long): OrganisationDetails {
     val organisationEntity = organisationRepository.findById(id)
       .orElseThrow { EntityNotFoundException("Organisation with id $id not found") }
+
+    // Split the address phones from the global phones
     val phoneNumbers = organisationPhoneDetailsRepository.findByOrganisationId(id)
     val organisationAddressPhones = organisationAddressPhoneRepository.findByOrganisationId(id)
     val organisationAddressPhoneIds = organisationAddressPhones.map { it.organisationPhoneId }
     val (organisationAddressPhoneNumbers, organisationPhoneNumbers) = phoneNumbers.partition { it.organisationPhoneId in organisationAddressPhoneIds }
+
     return OrganisationDetails(
       organisationId = organisationEntity.organisationId!!,
       organisationName = organisationEntity.organisationName,
@@ -76,7 +79,15 @@ class OrganisationService(
     organisationAddressPhoneNumbers: List<OrganisationPhoneDetailsEntity>,
     organisationAddressPhones: List<OrganisationAddressPhoneEntity>,
   ): List<OrganisationAddressDetails> = organisationAddressRepository.findByOrganisationId(id)
-    .map { address -> address.toModel(organisationAddressPhones.map { addressPhoneEntity -> addressPhoneEntity to organisationAddressPhoneNumbers.find { it.organisationPhoneId == addressPhoneEntity.organisationPhoneId }!! }) }
+    .map { address ->
+      address.toModel(
+        organisationAddressPhones.map { addressPhoneEntity ->
+          addressPhoneEntity to organisationAddressPhoneNumbers.find {
+            (it.organisationPhoneId == addressPhoneEntity.organisationPhoneId && addressPhoneEntity.organisationAddressId == address.organisationAddressId)
+          }
+        },
+      )
+    }
 
   fun search(request: OrganisationSearchRequest, pageable: Pageable): Page<OrganisationSummary> = organisationSearchRepository.search(request, pageable).toModel()
 
