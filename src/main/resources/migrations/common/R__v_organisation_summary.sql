@@ -30,7 +30,7 @@ FROM organisation o
       JOIN organisation_address_phone oap
         ON oap.organisation_address_id = oa.organisation_address_id AND
            oap.organisation_phone_id = op1.organisation_phone_id
-      WHERE op.phone_type = 'BUS'
+      WHERE op1.phone_type = 'BUS'
       LIMIT 1
     )
  LEFT JOIN reference_codes city_ref ON city_ref.group_code = 'CITY' AND city_ref.code = oa.city_code

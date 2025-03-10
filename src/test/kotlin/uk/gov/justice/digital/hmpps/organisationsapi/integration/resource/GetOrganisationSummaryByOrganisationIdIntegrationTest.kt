@@ -95,6 +95,12 @@ class GetOrganisationSummaryByOrganisationIdIntegrationTest : SecureApiIntegrati
           phoneNumbers = listOf(
             MigrateOrganisationPhoneNumber(
               nomisPhoneId = RandomUtils.secure().randomLong(),
+              type = "ALTB",
+              number = "9999999999",
+              extension = "11111",
+            ).setCreatedAndModified(),
+            MigrateOrganisationPhoneNumber(
+              nomisPhoneId = RandomUtils.secure().randomLong(),
               type = "BUS",
               number = "9123",
               extension = "321",
