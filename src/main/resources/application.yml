@@ -79,3 +79,6 @@ management:
     info:
       cache:
         time-to-live: 2000ms
+
+sentry:
+  exception-resolver-order: -2147483647

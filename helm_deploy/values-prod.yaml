@@ -6,6 +6,7 @@ generic-service:
     host: organisations-api.hmpps.service.justice.gov.uk
 
   env:
+    SENTRY_ENVIRONMENT: prod
     API_BASE_URL_HMPPS_AUTH: "https://sign-in.hmpps.service.justice.gov.uk/auth"
     FEATURE_EVENTS_SNS_ENABLED: false
 
