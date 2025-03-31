@@ -9,6 +9,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PagedModel
 import org.springframework.http.HttpStatus
 import uk.gov.justice.digital.hmpps.organisationsapi.facade.OrganisationFacade
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.CreateOrganisationRequest
@@ -100,7 +101,7 @@ class OrganisationControllerTest {
       // Given
       val request = OrganisationSearchRequest("foo")
       val params = Pageable.ofSize(99)
-      val expectedResults = PageImpl<OrganisationSummary>(emptyList())
+      val expectedResults = PagedModel(PageImpl<OrganisationSummary>(emptyList()))
       whenever(organisationFacade.search(request, params)).thenReturn(expectedResults)
 
       // When

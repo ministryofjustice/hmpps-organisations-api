@@ -1,7 +1,7 @@
 package uk.gov.justice.digital.hmpps.organisationsapi.facade
 
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PagedModel
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.CreateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.OrganisationSearchRequest
@@ -28,5 +28,5 @@ class OrganisationFacade(
 
   fun getOrganisationSummaryById(organisationId: Long): OrganisationSummary = organisationService.getOrganisationSummaryById(organisationId)
 
-  fun search(request: OrganisationSearchRequest, pageable: Pageable): Page<OrganisationSummary> = organisationService.search(request, pageable)
+  fun search(request: OrganisationSearchRequest, pageable: Pageable): PagedModel<OrganisationSummary> = organisationService.search(request, pageable)
 }

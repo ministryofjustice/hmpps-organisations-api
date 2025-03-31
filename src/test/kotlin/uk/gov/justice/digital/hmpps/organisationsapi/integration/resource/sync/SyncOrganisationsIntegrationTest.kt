@@ -241,20 +241,20 @@ class SyncOrganisationsIntegrationTest : PostgresIntegrationTestBase() {
 
       val firstPage = testAPIClient.syncReconcileOrganisations(0, 2)
       with(firstPage) {
-        assertThat(totalElements).isGreaterThanOrEqualTo(3)
+        assertThat(page.totalElements).isGreaterThanOrEqualTo(3)
         assertThat(content.hasSize(2))
         assertThat(content).extracting("organisationId").hasSize(2)
       }
 
       val secondPage = testAPIClient.syncReconcileOrganisations(1, 2)
       with(secondPage) {
-        assertThat(totalElements).isGreaterThanOrEqualTo(3)
+        assertThat(page.totalElements).isGreaterThanOrEqualTo(3)
         assertThat(content.size).isGreaterThanOrEqualTo(1)
       }
 
       val bigPage = testAPIClient.syncReconcileOrganisations(0, 100)
       with(bigPage) {
-        assertThat(totalElements).isGreaterThanOrEqualTo(3)
+        assertThat(page.totalElements).isGreaterThanOrEqualTo(3)
         assertThat(content.size).isGreaterThanOrEqualTo(3)
         assertThat(content).extracting("organisationId").containsAll(listOf(5005L, 5006L, 5007L))
       }

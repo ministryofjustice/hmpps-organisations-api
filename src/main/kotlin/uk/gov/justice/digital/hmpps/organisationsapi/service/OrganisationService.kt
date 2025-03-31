@@ -2,8 +2,8 @@ package uk.gov.justice.digital.hmpps.organisationsapi.service
 
 import jakarta.persistence.EntityNotFoundException
 import jakarta.transaction.Transactional
-import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
+import org.springframework.data.web.PagedModel
 import org.springframework.stereotype.Service
 import uk.gov.justice.digital.hmpps.organisationsapi.entity.OrganisationAddressPhoneEntity
 import uk.gov.justice.digital.hmpps.organisationsapi.entity.OrganisationEntity
@@ -89,7 +89,7 @@ class OrganisationService(
       )
     }
 
-  fun search(request: OrganisationSearchRequest, pageable: Pageable): Page<OrganisationSummary> = organisationSearchRepository.search(request, pageable).toModel()
+  fun search(request: OrganisationSearchRequest, pageable: Pageable): PagedModel<OrganisationSummary> = organisationSearchRepository.search(request, pageable).toModel()
 
   @Transactional
   fun create(request: CreateOrganisationRequest): OrganisationDetails {

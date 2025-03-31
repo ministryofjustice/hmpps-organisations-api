@@ -44,7 +44,7 @@ class OrganisationSearchIntegrationTest : SecureApiIntegrationTestBase() {
   @ValueSource(strings = ["ROLE_ORGANISATIONS__R", "ROLE_ORGANISATIONS__RW"])
   fun `should return empty list if no organisation found and work with all roles`(role: String) {
     val response = testAPIClient.searchOrganisations(OrganisationSearchRequest("ABC"))
-    assertThat(response.empty).isTrue()
+    assertThat(response.page.totalElements).isEqualTo(0)
     assertThat(response.content).isEmpty()
   }
 
