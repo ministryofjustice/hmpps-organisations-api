@@ -118,6 +118,7 @@ class OrganisationControllerTest {
     private const val PROGRAMME_NUMBER = "P1"
     private const val VAT_NUMBER = "V1"
     private const val CASELOAD_ID = "C1"
+    private const val CASELOAD_PRISON_NAME = "Case Load 1"
     private const val COMMENTS = "C2"
     private const val CREATED_BY = "Created by"
     private const val UPDATED_BY = "U1"
@@ -164,6 +165,7 @@ class OrganisationControllerTest {
       programmeNumber = PROGRAMME_NUMBER,
       vatNumber = VAT_NUMBER,
       caseloadId = CASELOAD_ID,
+      caseloadPrisonName = CASELOAD_PRISON_NAME,
       comments = COMMENTS,
       active = active,
       deactivatedDate = deactivatedDate,

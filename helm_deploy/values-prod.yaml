@@ -8,6 +8,7 @@ generic-service:
   env:
     SENTRY_ENVIRONMENT: prod
     API_BASE_URL_HMPPS_AUTH: "https://sign-in.hmpps.service.justice.gov.uk/auth"
+    API_BASE_URL_PRISON_REGISTER: "https://prison-register.hmpps.service.justice.gov.uk"
     FEATURE_EVENTS_SNS_ENABLED: false
 
   postgresDatabaseRestore:

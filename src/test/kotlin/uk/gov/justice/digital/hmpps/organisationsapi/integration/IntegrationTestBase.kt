@@ -9,15 +9,17 @@ import org.springframework.context.annotation.Import
 import org.springframework.http.HttpHeaders
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
+import uk.gov.justice.digital.hmpps.organisationsapi.client.prisonregister.PrisonName
 import uk.gov.justice.digital.hmpps.organisationsapi.entity.OrganisationWithFixedIdEntity
 import uk.gov.justice.digital.hmpps.organisationsapi.integration.helper.TestAPIClient
 import uk.gov.justice.digital.hmpps.organisationsapi.integration.wiremock.HmppsAuthApiExtension
-import uk.gov.justice.digital.hmpps.organisationsapi.integration.wiremock.HmppsAuthApiExtension.Companion.hmppsAuth
+import uk.gov.justice.digital.hmpps.organisationsapi.integration.wiremock.PrisonRegisterApiExtension
+import uk.gov.justice.digital.hmpps.organisationsapi.integration.wiremock.PrisonRegisterApiExtension.Companion.prisonRegisterMockServer
 import uk.gov.justice.digital.hmpps.organisationsapi.repository.OrganisationWithFixedIdRepository
 import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
 import java.time.LocalDateTime
 
-@ExtendWith(HmppsAuthApiExtension::class)
+@ExtendWith(HmppsAuthApiExtension::class, PrisonRegisterApiExtension::class)
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Import(TestConfiguration::class)
 @ActiveProfiles("test")
@@ -49,10 +51,6 @@ abstract class IntegrationTestBase {
     scopes: List<String> = listOf("read"),
   ): (HttpHeaders) -> Unit = jwtAuthHelper.setAuthorisationHeader(username = username, scope = scopes, roles = roles)
 
-  protected fun stubPingWithResponse(status: Int) {
-    hmppsAuth.stubHealthPing(status)
-  }
-
   fun stubOrganisation(id: Long) {
     val entity = OrganisationWithFixedIdEntity(
       id,
@@ -69,5 +67,13 @@ abstract class IntegrationTestBase {
       updatedTime = null,
     )
     organisationRepository.saveAndFlush(entity)
+  }
+
+  fun stubPrisonRegisterGetNamesById(id: String, name: String) {
+    prisonRegisterMockServer.stubGetPrisonNamesWithId(prisonId = id, PrisonName(prisonId = id, prisonName = name))
+  }
+
+  fun stubPrisonRegisterGetNamesByIdNotFound(id: String) {
+    prisonRegisterMockServer.stubGetPrisonNamesWithId(prisonId = id, null)
   }
 }

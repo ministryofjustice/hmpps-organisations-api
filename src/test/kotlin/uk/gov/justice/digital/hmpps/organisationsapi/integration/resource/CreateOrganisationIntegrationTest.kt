@@ -138,6 +138,8 @@ class CreateOrganisationIntegrationTest : SecureApiIntegrationTestBase() {
   fun `should create organisation successfully with valid data`() {
     val request = createValidOrganisationRequest()
 
+    stubPrisonRegisterGetNamesById("TEST1", "Test Prison")
+
     val response = webTestClient.post()
       .uri("/organisation")
       .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS__RW")))
@@ -155,6 +157,7 @@ class CreateOrganisationIntegrationTest : SecureApiIntegrationTestBase() {
       assertThat(programmeNumber).isEqualTo(request.programmeNumber)
       assertThat(vatNumber).isEqualTo(request.vatNumber)
       assertThat(caseloadId).isEqualTo(request.caseloadId)
+      assertThat(caseloadPrisonName).isEqualTo("Test Prison")
       assertThat(comments).isEqualTo(request.comments)
       assertThat(active).isEqualTo(request.active)
       assertThat(deactivatedDate).isEqualTo(request.deactivatedDate)
