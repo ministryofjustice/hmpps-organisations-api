@@ -91,7 +91,7 @@ class GetOrganisationSummaryByOrganisationIdIntegrationTest : SecureApiIntegrati
           businessHours = "9-5",
           comment = "Comments",
           startDate = LocalDate.of(2020, 2, 3),
-          endDate = LocalDate.of(2021, 3, 4),
+          endDate = null,
           phoneNumbers = listOf(
             MigrateOrganisationPhoneNumber(
               nomisPhoneId = RandomUtils.secure().randomLong(),
