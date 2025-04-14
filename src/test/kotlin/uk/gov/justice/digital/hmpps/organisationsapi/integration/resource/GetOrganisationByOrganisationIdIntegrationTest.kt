@@ -39,6 +39,7 @@ class GetOrganisationByOrganisationIdIntegrationTest : SecureApiIntegrationTestB
 
   @Test
   fun `should return full organisation data when using a valid organisation id`() {
+    stubPrisonRegisterGetNamesById("CL", "Test Prison")
     val organisationId = RandomUtils.secure().randomLong()
     val migrate = MigrateOrganisationRequest(
       nomisCorporateId = organisationId,
@@ -127,6 +128,7 @@ class GetOrganisationByOrganisationIdIntegrationTest : SecureApiIntegrationTestB
       assertThat(programmeNumber).isEqualTo("Programme Number")
       assertThat(vatNumber).isEqualTo("VAT Number")
       assertThat(caseloadId).isEqualTo("CL")
+      assertThat(caseloadPrisonName).isEqualTo("Test Prison")
       assertThat(comments).isEqualTo("Some comments")
       assertThat(active).isEqualTo(false)
       assertThat(deactivatedDate).isEqualTo(LocalDate.of(2025, 1, 2))
@@ -220,6 +222,38 @@ class GetOrganisationByOrganisationIdIntegrationTest : SecureApiIntegrationTestB
         assertThat(startDate).isEqualTo(LocalDate.of(2020, 3, 3))
         assertThat(endDate).isEqualTo(LocalDate.of(2021, 4, 4))
       }
+    }
+  }
+
+  @Test
+  fun `Should not blow up if caseload id can't be looked up`() {
+    stubPrisonRegisterGetNamesByIdNotFound("CL")
+    val organisationId = RandomUtils.secure().randomLong()
+    val migrate = MigrateOrganisationRequest(
+      nomisCorporateId = organisationId,
+      organisationName = "Basic Org",
+      programmeNumber = "Programme Number",
+      vatNumber = "VAT Number",
+      caseloadId = "CL",
+      comments = "Some comments",
+      active = false,
+      deactivatedDate = LocalDate.of(2025, 1, 2),
+      organisationTypes = listOf(MigrateOrganisationType("BSKILLS").setCreatedAndModified()),
+      phoneNumbers = emptyList(),
+      emailAddresses = emptyList(),
+      webAddresses = emptyList(),
+      addresses = emptyList(),
+    ).setCreatedAndModified()
+
+    testAPIClient.migrateAnOrganisation(migrate)
+
+    val organisation = testAPIClient.getOrganisation(organisationId)
+
+    with(organisation) {
+      assertThat(this.organisationId).isEqualTo(organisationId)
+      assertThat(organisationName).isEqualTo("Basic Org")
+      assertThat(caseloadId).isEqualTo("CL")
+      assertThat(caseloadPrisonName).isNull()
     }
   }
 

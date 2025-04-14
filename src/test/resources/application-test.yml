@@ -16,6 +16,7 @@ api:
   base:
     url:
       hmpps-auth: "http://localhost:8090/auth"
+      prison-register: "http://localhost:9995"
 
 feature:
   event:

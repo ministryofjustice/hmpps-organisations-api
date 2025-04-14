@@ -2,12 +2,15 @@ package uk.gov.justice.digital.hmpps.organisationsapi.integration.health
 
 import org.junit.jupiter.api.Test
 import uk.gov.justice.digital.hmpps.organisationsapi.integration.PostgresIntegrationTestBase
+import uk.gov.justice.digital.hmpps.organisationsapi.integration.wiremock.HmppsAuthApiExtension.Companion.hmppsAuthMockServer
+import uk.gov.justice.digital.hmpps.organisationsapi.integration.wiremock.PrisonRegisterApiExtension.Companion.prisonRegisterMockServer
 
 class HealthCheckTest : PostgresIntegrationTestBase() {
 
   @Test
   fun `Health page reports ok`() {
-    stubPingWithResponse(200)
+    hmppsAuthMockServer.stubHealthPing(200)
+    prisonRegisterMockServer.stubHealthPing(200)
 
     webTestClient.get()
       .uri("/health")
@@ -19,8 +22,9 @@ class HealthCheckTest : PostgresIntegrationTestBase() {
   }
 
   @Test
-  fun `Health page reports down`() {
-    stubPingWithResponse(503)
+  fun `Health page reports down if hmpps-auth down`() {
+    hmppsAuthMockServer.stubHealthPing(503)
+    prisonRegisterMockServer.stubHealthPing(200)
 
     webTestClient.get()
       .uri("/health")
@@ -30,6 +34,20 @@ class HealthCheckTest : PostgresIntegrationTestBase() {
       .expectBody()
       .jsonPath("status").isEqualTo("DOWN")
       .jsonPath("components.hmppsAuth.status").isEqualTo("DOWN")
+  }
+
+  @Test
+  fun `Health page reports up even if prison-register-api down`() {
+    prisonRegisterMockServer.stubHealthPing(503)
+    hmppsAuthMockServer.stubHealthPing(200)
+
+    webTestClient.get()
+      .uri("/health")
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectBody()
+      .jsonPath("status").isEqualTo("UP")
   }
 
   @Test

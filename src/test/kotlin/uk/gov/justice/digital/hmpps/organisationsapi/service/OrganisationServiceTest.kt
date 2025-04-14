@@ -8,10 +8,13 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
+import uk.gov.justice.digital.hmpps.organisationsapi.client.prisonregister.PrisonName
+import uk.gov.justice.digital.hmpps.organisationsapi.client.prisonregister.PrisonRegisterClient
 import uk.gov.justice.digital.hmpps.organisationsapi.entity.OrganisationEntity
 import uk.gov.justice.digital.hmpps.organisationsapi.entity.OrganisationSummaryEntity
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.CreateOrganisationRequest
@@ -40,6 +43,7 @@ class OrganisationServiceTest {
   private val organisationWebAddressRepository: OrganisationWebAddressRepository = mock()
   private val organisationAddressRepository: OrganisationAddressDetailsRepository = mock()
   private val organisationSummaryRepository: OrganisationSummaryRepository = mock()
+  private val prisonRegisterClient: PrisonRegisterClient = mock()
 
   private val organisationService: OrganisationService = OrganisationService(
     organisationRepository,
@@ -51,6 +55,7 @@ class OrganisationServiceTest {
     organisationWebAddressRepository,
     organisationAddressRepository,
     organisationSummaryRepository,
+    prisonRegisterClient,
   )
 
   @Nested
@@ -61,6 +66,79 @@ class OrganisationServiceTest {
       // Given
       val orgId = 1L
       val savedEntity = createOrganisationEntity(
+        deactivatedDate = LocalDate.now(),
+        createdTime = LocalDateTime.now().minusMinutes(20),
+        updatedTime = LocalDateTime.now().plusMinutes(20),
+      )
+      whenever(organisationRepository.findById(orgId)).thenReturn(Optional.of(savedEntity))
+      whenever(prisonRegisterClient.findPrisonNameById("C1")).thenReturn(PrisonName("C1", "Test Prison"))
+
+      // When
+      val result = organisationService.getOrganisationById(orgId)
+
+      // Then
+      assertNotNull(result)
+      with(result) {
+        assertThat(organisationId).isEqualTo(orgId)
+        assertThat(organisationName).isEqualTo(savedEntity.organisationName)
+        assertThat(programmeNumber).isEqualTo(savedEntity.programmeNumber)
+        assertThat(vatNumber).isEqualTo(savedEntity.vatNumber)
+        assertThat(caseloadId).isEqualTo(savedEntity.caseloadId)
+        assertThat(caseloadPrisonName).isEqualTo("Test Prison")
+        assertThat(comments).isEqualTo(savedEntity.comments)
+        assertThat(active).isEqualTo(savedEntity.active)
+        assertThat(deactivatedDate).isEqualTo(savedEntity.deactivatedDate)
+        assertThat(createdBy).isEqualTo(savedEntity.createdBy)
+        assertThat(createdTime).isEqualTo(savedEntity.createdTime)
+        assertThat(updatedBy).isEqualTo(savedEntity.updatedBy)
+        assertThat(updatedTime).isEqualTo(savedEntity.updatedTime)
+      }
+
+      verify(prisonRegisterClient).findPrisonNameById("C1")
+    }
+
+    @Test
+    fun `should return a organisation minus the prison name if it can't be found`() {
+      // Given
+      val orgId = 1L
+      val savedEntity = createOrganisationEntity(
+        deactivatedDate = LocalDate.now(),
+        createdTime = LocalDateTime.now().minusMinutes(20),
+        updatedTime = LocalDateTime.now().plusMinutes(20),
+      )
+      whenever(organisationRepository.findById(orgId)).thenReturn(Optional.of(savedEntity))
+      whenever(prisonRegisterClient.findPrisonNameById("C1")).thenReturn(null)
+
+      // When
+      val result = organisationService.getOrganisationById(orgId)
+
+      // Then
+      assertNotNull(result)
+      with(result) {
+        assertThat(organisationId).isEqualTo(orgId)
+        assertThat(organisationName).isEqualTo(savedEntity.organisationName)
+        assertThat(programmeNumber).isEqualTo(savedEntity.programmeNumber)
+        assertThat(vatNumber).isEqualTo(savedEntity.vatNumber)
+        assertThat(caseloadId).isEqualTo(savedEntity.caseloadId)
+        assertThat(caseloadPrisonName).isNull()
+        assertThat(comments).isEqualTo(savedEntity.comments)
+        assertThat(active).isEqualTo(savedEntity.active)
+        assertThat(deactivatedDate).isEqualTo(savedEntity.deactivatedDate)
+        assertThat(createdBy).isEqualTo(savedEntity.createdBy)
+        assertThat(createdTime).isEqualTo(savedEntity.createdTime)
+        assertThat(updatedBy).isEqualTo(savedEntity.updatedBy)
+        assertThat(updatedTime).isEqualTo(savedEntity.updatedTime)
+      }
+
+      verify(prisonRegisterClient).findPrisonNameById("C1")
+    }
+
+    @Test
+    fun `should return a organisation without calling prison register if no caseload is set`() {
+      // Given
+      val orgId = 1L
+      val savedEntity = createOrganisationEntity(
+        caseloadId = null,
         deactivatedDate = LocalDate.now(),
         createdTime = LocalDateTime.now().minusMinutes(20),
         updatedTime = LocalDateTime.now().plusMinutes(20),
@@ -78,6 +156,7 @@ class OrganisationServiceTest {
         assertThat(programmeNumber).isEqualTo(savedEntity.programmeNumber)
         assertThat(vatNumber).isEqualTo(savedEntity.vatNumber)
         assertThat(caseloadId).isEqualTo(savedEntity.caseloadId)
+        assertThat(caseloadPrisonName).isNull()
         assertThat(comments).isEqualTo(savedEntity.comments)
         assertThat(active).isEqualTo(savedEntity.active)
         assertThat(deactivatedDate).isEqualTo(savedEntity.deactivatedDate)
@@ -86,6 +165,8 @@ class OrganisationServiceTest {
         assertThat(updatedBy).isEqualTo(savedEntity.updatedBy)
         assertThat(updatedTime).isEqualTo(savedEntity.updatedTime)
       }
+
+      verify(prisonRegisterClient, never()).findPrisonNameById(any())
     }
 
     @Test
@@ -131,6 +212,7 @@ class OrganisationServiceTest {
       )
 
       whenever(organisationRepository.saveAndFlush(any())).thenReturn(savedEntity)
+      whenever(prisonRegisterClient.findPrisonNameById("C1")).thenReturn(PrisonName("C1", "Test Prison"))
 
       // When
       val result = organisationService.create(request)
@@ -143,6 +225,7 @@ class OrganisationServiceTest {
         assertThat(programmeNumber).isEqualTo(request.programmeNumber)
         assertThat(vatNumber).isEqualTo(request.vatNumber)
         assertThat(caseloadId).isEqualTo(request.caseloadId)
+        assertThat(caseloadPrisonName).isEqualTo("Test Prison")
         assertThat(comments).isEqualTo(request.comments)
         assertThat(active).isFalse()
         assertThat(deactivatedDate).isEqualTo(request.deactivatedDate)
@@ -153,6 +236,110 @@ class OrganisationServiceTest {
       }
 
       verify(organisationRepository).saveAndFlush(any())
+      verify(prisonRegisterClient).findPrisonNameById("C1")
+    }
+
+    @Test
+    fun `create successfully creates new organisation even if caseload id can't be found`() {
+      // Given
+      val request = CreateOrganisationRequest(
+        organisationName = "Name",
+        programmeNumber = "P1",
+        vatNumber = "V1",
+        caseloadId = "C1",
+        active = false,
+        deactivatedDate = LocalDate.now(),
+        createdBy = "Created by",
+        createdTime = LocalDateTime.now().minusMinutes(20),
+        updatedBy = "U1",
+        updatedTime = LocalDateTime.now().plusMinutes(20),
+        comments = "C2",
+      )
+
+      val savedEntity = createOrganisationEntity(
+        deactivatedDate = request.deactivatedDate,
+        createdTime = request.createdTime,
+        updatedTime = request.updatedTime,
+      )
+
+      whenever(organisationRepository.saveAndFlush(any())).thenReturn(savedEntity)
+      whenever(prisonRegisterClient.findPrisonNameById("C1")).thenReturn(null)
+
+      // When
+      val result = organisationService.create(request)
+
+      // Then
+      assertNotNull(result)
+      with(result) {
+        assertThat(organisationId).isEqualTo(1L)
+        assertThat(organisationName).isEqualTo(request.organisationName)
+        assertThat(programmeNumber).isEqualTo(request.programmeNumber)
+        assertThat(vatNumber).isEqualTo(request.vatNumber)
+        assertThat(caseloadId).isEqualTo(request.caseloadId)
+        assertThat(caseloadPrisonName).isNull()
+        assertThat(comments).isEqualTo(request.comments)
+        assertThat(active).isFalse()
+        assertThat(deactivatedDate).isEqualTo(request.deactivatedDate)
+        assertThat(createdBy).isEqualTo(request.createdBy)
+        assertThat(createdTime).isEqualTo(request.createdTime)
+        assertThat(updatedBy).isEqualTo(request.updatedBy)
+        assertThat(updatedTime).isEqualTo(request.updatedTime)
+      }
+
+      verify(organisationRepository).saveAndFlush(any())
+      verify(prisonRegisterClient).findPrisonNameById("C1")
+    }
+
+    @Test
+    fun `create successfully without calling prison register if no caseload`() {
+      // Given
+      val request = CreateOrganisationRequest(
+        organisationName = "Name",
+        programmeNumber = "P1",
+        vatNumber = "V1",
+        caseloadId = null,
+        active = false,
+        deactivatedDate = LocalDate.now(),
+        createdBy = "Created by",
+        createdTime = LocalDateTime.now().minusMinutes(20),
+        updatedBy = "U1",
+        updatedTime = LocalDateTime.now().plusMinutes(20),
+        comments = "C2",
+      )
+
+      val savedEntity = createOrganisationEntity(
+        deactivatedDate = request.deactivatedDate,
+        caseloadId = null,
+        createdTime = request.createdTime,
+        updatedTime = request.updatedTime,
+      )
+
+      whenever(organisationRepository.saveAndFlush(any())).thenReturn(savedEntity)
+      whenever(prisonRegisterClient.findPrisonNameById("C1")).thenReturn(null)
+
+      // When
+      val result = organisationService.create(request)
+
+      // Then
+      assertNotNull(result)
+      with(result) {
+        assertThat(organisationId).isEqualTo(1L)
+        assertThat(organisationName).isEqualTo(request.organisationName)
+        assertThat(programmeNumber).isEqualTo(request.programmeNumber)
+        assertThat(vatNumber).isEqualTo(request.vatNumber)
+        assertThat(caseloadId).isEqualTo(request.caseloadId)
+        assertThat(caseloadPrisonName).isNull()
+        assertThat(comments).isEqualTo(request.comments)
+        assertThat(active).isFalse()
+        assertThat(deactivatedDate).isEqualTo(request.deactivatedDate)
+        assertThat(createdBy).isEqualTo(request.createdBy)
+        assertThat(createdTime).isEqualTo(request.createdTime)
+        assertThat(updatedBy).isEqualTo(request.updatedBy)
+        assertThat(updatedTime).isEqualTo(request.updatedTime)
+      }
+
+      verify(organisationRepository).saveAndFlush(any())
+      verify(prisonRegisterClient, never()).findPrisonNameById(any())
     }
   }
 
@@ -226,7 +413,7 @@ class OrganisationServiceTest {
       organisationName: String = "Name",
       programmeNumber: String = "P1",
       vatNumber: String = "V1",
-      caseloadId: String = "C1",
+      caseloadId: String? = "C1",
       comments: String = "C2",
       active: Boolean = false,
       deactivatedDate: LocalDate? = null,

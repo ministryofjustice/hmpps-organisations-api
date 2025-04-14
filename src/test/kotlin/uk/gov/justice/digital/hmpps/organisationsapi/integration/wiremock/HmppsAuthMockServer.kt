@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.organisationsapi.integration.wiremock
 
-import com.github.tomakehurst.wiremock.WireMockServer
 import com.github.tomakehurst.wiremock.client.WireMock.aResponse
 import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.post
@@ -11,29 +10,28 @@ import org.junit.jupiter.api.extension.AfterAllCallback
 import org.junit.jupiter.api.extension.BeforeAllCallback
 import org.junit.jupiter.api.extension.BeforeEachCallback
 import org.junit.jupiter.api.extension.ExtensionContext
-import java.time.LocalDateTime
-import java.time.ZoneOffset
 
 class HmppsAuthApiExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallback {
   companion object {
     @JvmField
-    val hmppsAuth = HmppsAuthMockServer()
+    val hmppsAuthMockServer = HmppsAuthMockServer()
   }
 
   override fun beforeAll(context: ExtensionContext) {
-    hmppsAuth.start()
+    hmppsAuthMockServer.start()
   }
 
   override fun beforeEach(context: ExtensionContext) {
-    hmppsAuth.resetRequests()
+    hmppsAuthMockServer.resetRequests()
+    hmppsAuthMockServer.stubGrantToken()
   }
 
   override fun afterAll(context: ExtensionContext) {
-    hmppsAuth.stop()
+    hmppsAuthMockServer.stop()
   }
 }
 
-class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
+class HmppsAuthMockServer : MockServer(WIREMOCK_PORT, "/auth") {
   companion object {
     private const val WIREMOCK_PORT = 8090
   }
@@ -48,23 +46,11 @@ class HmppsAuthMockServer : WireMockServer(WIREMOCK_PORT) {
               """
                 {
                   "token_type": "bearer",
-                  "access_token": "ABCDE",
-                  "expires_in": ${LocalDateTime.now().plusHours(2).toEpochSecond(ZoneOffset.UTC)}
+                  "access_token": "ABCDE"
                 }
               """.trimIndent(),
             ),
         ),
-    )
-  }
-
-  fun stubHealthPing(status: Int) {
-    stubFor(
-      get("/auth/health/ping").willReturn(
-        aResponse()
-          .withHeader("Content-Type", "application/json")
-          .withBody(if (status == 200) """{"status":"UP"}""" else """{"status":"DOWN"}""")
-          .withStatus(status),
-      ),
     )
   }
 }

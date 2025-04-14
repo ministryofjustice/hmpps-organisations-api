@@ -16,6 +16,7 @@ export DB_PASS=organisations
 export DB_SSL_MODE=prefer
 
 export API_BASE_URL_HMPPS_AUTH=https://sign-in-dev.hmpps.service.justice.gov.uk/auth
+export API_BASE_URL_PRISON_REGISTER=https://prison-register-dev.hmpps.service.justice.gov.uk
 
 export $(cat .env | xargs)  # If you want to set or update the current shell environment e.g. system client and secret.
 

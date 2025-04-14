@@ -5,6 +5,7 @@ import jakarta.transaction.Transactional
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.stereotype.Service
+import uk.gov.justice.digital.hmpps.organisationsapi.client.prisonregister.PrisonRegisterClient
 import uk.gov.justice.digital.hmpps.organisationsapi.entity.OrganisationAddressPhoneEntity
 import uk.gov.justice.digital.hmpps.organisationsapi.entity.OrganisationEntity
 import uk.gov.justice.digital.hmpps.organisationsapi.entity.OrganisationPhoneDetailsEntity
@@ -35,6 +36,7 @@ class OrganisationService(
   private val organisationWebAddressRepository: OrganisationWebAddressRepository,
   private val organisationAddressRepository: OrganisationAddressDetailsRepository,
   private val organisationSummaryRepository: OrganisationSummaryRepository,
+  private val prisonRegisterClient: PrisonRegisterClient,
 ) {
 
   fun getOrganisationById(id: Long): OrganisationDetails {
@@ -53,6 +55,7 @@ class OrganisationService(
       programmeNumber = organisationEntity.programmeNumber,
       vatNumber = organisationEntity.vatNumber,
       caseloadId = organisationEntity.caseloadId,
+      caseloadPrisonName = organisationEntity.caseloadId?.let { prisonRegisterClient.findPrisonNameById(organisationEntity.caseloadId)?.prisonName },
       comments = organisationEntity.comments,
       active = organisationEntity.active,
       deactivatedDate = organisationEntity.deactivatedDate,
@@ -114,6 +117,7 @@ class OrganisationService(
       programmeNumber = created.programmeNumber,
       vatNumber = created.vatNumber,
       caseloadId = created.caseloadId,
+      caseloadPrisonName = created.caseloadId?.let { prisonRegisterClient.findPrisonNameById(created.caseloadId)?.prisonName },
       comments = created.comments,
       active = created.active,
       deactivatedDate = created.deactivatedDate,

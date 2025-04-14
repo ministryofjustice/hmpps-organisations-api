@@ -28,6 +28,12 @@ data class OrganisationDetails(
   )
   val caseloadId: String?,
 
+  @Schema(
+    description = "The name of the prison that the caseloadId references",
+    example = "Brixton (HMP)",
+  )
+  val caseloadPrisonName: String?,
+
   @Schema(description = "Any comments on the organisation", example = "Some additional info")
   val comments: String?,
 
