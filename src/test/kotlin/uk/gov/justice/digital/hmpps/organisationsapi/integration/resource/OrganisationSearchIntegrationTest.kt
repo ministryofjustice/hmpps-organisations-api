@@ -15,6 +15,7 @@ import uk.gov.justice.digital.hmpps.organisationsapi.model.request.migrate.Migra
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.migrate.MigrateOrganisationPhoneNumber
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.migrate.MigrateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.OrganisationSummary
+import java.time.LocalDate
 
 class OrganisationSearchIntegrationTest : SecureApiIntegrationTestBase() {
 
@@ -158,21 +159,136 @@ class OrganisationSearchIntegrationTest : SecureApiIntegrationTestBase() {
   }
 
   @Test
-  fun `should not return address if there is only a non-primary one`() {
+  fun `should return the mail address if there is no primary`() {
     val org = minimalRequest().copy(
       addresses = listOf(
         MigrateOrganisationAddress(
           nomisAddressId = RandomUtils.secure().randomLong(),
           type = "HOME",
-          flat = "F",
-          premise = "10",
-          street = "Dublin Road",
-          locality = "locality",
-          postCode = "D1 1DN",
-          city = "25343",
-          county = "S.YORKSHIRE",
+          flat = "Another address",
           country = "ENG",
           primaryAddress = false,
+          mailAddress = false,
+        ),
+        MigrateOrganisationAddress(
+          nomisAddressId = RandomUtils.secure().randomLong(),
+          type = "HOME",
+          flat = "Mail address",
+          country = "ENG",
+          primaryAddress = false,
+          mailAddress = true,
+        ),
+      ),
+    )
+    createOrg(org)
+
+    val response = testAPIClient.searchOrganisations(OrganisationSearchRequest(org.organisationName))
+    assertThat(response.content).hasSize(1)
+    assertThat(response.content[0]).isEqualTo(
+      OrganisationSummary(
+        organisationId = org.nomisCorporateId,
+        organisationName = org.organisationName,
+        organisationActive = true,
+        flat = "Mail address",
+        property = null,
+        street = null,
+        area = null,
+        postcode = null,
+        cityCode = null,
+        cityDescription = null,
+        countyCode = null,
+        countyDescription = null,
+        countryCode = "ENG",
+        countryDescription = "England",
+        businessPhoneNumber = null,
+        businessPhoneNumberExtension = null,
+      ),
+    )
+  }
+
+  @Test
+  fun `should return the address with the latest start date if there is no primary or mail`() {
+    val org = minimalRequest().copy(
+      addresses = listOf(
+        MigrateOrganisationAddress(
+          nomisAddressId = RandomUtils.secure().randomLong(),
+          type = "HOME",
+          flat = "Oldest address",
+          country = "ENG",
+          primaryAddress = false,
+          mailAddress = false,
+          startDate = LocalDate.of(2000, 1, 1),
+        ),
+        MigrateOrganisationAddress(
+          nomisAddressId = RandomUtils.secure().randomLong(),
+          type = "HOME",
+          flat = "Newest address",
+          country = "ENG",
+          primaryAddress = false,
+          mailAddress = false,
+          startDate = LocalDate.of(2010, 1, 1),
+        ),
+      ),
+    )
+    createOrg(org)
+
+    val response = testAPIClient.searchOrganisations(OrganisationSearchRequest(org.organisationName))
+    assertThat(response.content).hasSize(1)
+    assertThat(response.content[0]).isEqualTo(
+      OrganisationSummary(
+        organisationId = org.nomisCorporateId,
+        organisationName = org.organisationName,
+        organisationActive = true,
+        flat = "Newest address",
+        property = null,
+        street = null,
+        area = null,
+        postcode = null,
+        cityCode = null,
+        cityDescription = null,
+        countyCode = null,
+        countyDescription = null,
+        countryCode = "ENG",
+        countryDescription = "England",
+        businessPhoneNumber = null,
+        businessPhoneNumberExtension = null,
+      ),
+    )
+  }
+
+  @Test
+  fun `should return no address with end date even if primary or mail`() {
+    val org = minimalRequest().copy(
+      addresses = listOf(
+        MigrateOrganisationAddress(
+          nomisAddressId = RandomUtils.secure().randomLong(),
+          type = "HOME",
+          flat = "Primary address",
+          country = "ENG",
+          primaryAddress = true,
+          mailAddress = false,
+          startDate = LocalDate.of(2000, 1, 1),
+          endDate = LocalDate.of(2025, 1, 1),
+        ),
+        MigrateOrganisationAddress(
+          nomisAddressId = RandomUtils.secure().randomLong(),
+          type = "HOME",
+          flat = "Mail address",
+          country = "ENG",
+          primaryAddress = false,
+          mailAddress = true,
+          startDate = LocalDate.of(2010, 1, 1),
+          endDate = LocalDate.of(2025, 1, 1),
+        ),
+        MigrateOrganisationAddress(
+          nomisAddressId = RandomUtils.secure().randomLong(),
+          type = "HOME",
+          flat = "Another address",
+          country = "ENG",
+          primaryAddress = false,
+          mailAddress = false,
+          startDate = LocalDate.of(2010, 1, 1),
+          endDate = LocalDate.of(2025, 1, 1),
         ),
       ),
     )
