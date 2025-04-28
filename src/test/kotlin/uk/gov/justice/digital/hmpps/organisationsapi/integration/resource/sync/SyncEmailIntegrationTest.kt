@@ -214,30 +214,28 @@ class SyncEmailIntegrationTest : PostgresIntegrationTestBase() {
       createdBy = "CREATOR",
     )
 
-    private fun getEmailById(organisationEmailId: Long) =
-      webTestClient.get()
-        .uri("/sync/organisation-email/{organisationEmailId}", organisationEmailId)
-        .accept(MediaType.APPLICATION_JSON)
-        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-        .exchange()
-        .expectStatus()
-        .isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody(SyncEmailResponse::class.java)
-        .returnResult().responseBody!!
+    private fun getEmailById(organisationEmailId: Long) = webTestClient.get()
+      .uri("/sync/organisation-email/{organisationEmailId}", organisationEmailId)
+      .accept(MediaType.APPLICATION_JSON)
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectHeader().contentType(MediaType.APPLICATION_JSON)
+      .expectBody(SyncEmailResponse::class.java)
+      .returnResult().responseBody!!
 
-    private fun updateEmail(organisationEmailId: Long, organisationId: Long) =
-      webTestClient.put()
-        .uri("/sync/organisation-email/{organisationEmailId}", organisationEmailId)
-        .accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-        .bodyValue(syncUpdateEmailRequest(organisationId))
-        .exchange()
-        .expectStatus()
-        .isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody(SyncEmailResponse::class.java)
-        .returnResult().responseBody!!
+    private fun updateEmail(organisationEmailId: Long, organisationId: Long) = webTestClient.put()
+      .uri("/sync/organisation-email/{organisationEmailId}", organisationEmailId)
+      .accept(MediaType.APPLICATION_JSON)
+      .contentType(MediaType.APPLICATION_JSON)
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
+      .bodyValue(syncUpdateEmailRequest(organisationId))
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectHeader().contentType(MediaType.APPLICATION_JSON)
+      .expectBody(SyncEmailResponse::class.java)
+      .returnResult().responseBody!!
   }
 }

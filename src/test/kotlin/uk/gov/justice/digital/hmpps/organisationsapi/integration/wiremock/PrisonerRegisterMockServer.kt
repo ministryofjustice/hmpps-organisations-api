@@ -9,7 +9,10 @@ import org.junit.jupiter.api.extension.ExtensionContext
 import org.springframework.http.HttpStatus
 import uk.gov.justice.digital.hmpps.organisationsapi.client.prisonregister.PrisonName
 
-class PrisonRegisterApiExtension : BeforeAllCallback, AfterAllCallback, BeforeEachCallback {
+class PrisonRegisterApiExtension :
+  BeforeAllCallback,
+  AfterAllCallback,
+  BeforeEachCallback {
   companion object {
     @JvmField
     val prisonRegisterMockServer = PrisonRegisterMockServer()

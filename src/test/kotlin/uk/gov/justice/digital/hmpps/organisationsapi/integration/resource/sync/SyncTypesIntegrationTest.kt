@@ -189,44 +189,41 @@ class SyncTypesIntegrationTest : PostgresIntegrationTestBase() {
       createdBy = "CREATOR",
     )
 
-    private fun getTypesByOrganisationId(organisationId: Long) =
-      webTestClient.get()
-        .uri("/sync/organisation-types/{organisationId}", organisationId)
-        .accept(MediaType.APPLICATION_JSON)
-        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-        .exchange()
-        .expectStatus()
-        .isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody(SyncTypesResponse::class.java)
-        .returnResult().responseBody!!
+    private fun getTypesByOrganisationId(organisationId: Long) = webTestClient.get()
+      .uri("/sync/organisation-types/{organisationId}", organisationId)
+      .accept(MediaType.APPLICATION_JSON)
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectHeader().contentType(MediaType.APPLICATION_JSON)
+      .expectBody(SyncTypesResponse::class.java)
+      .returnResult().responseBody!!
 
-    private fun updateTypes(organisationId: Long) =
-      webTestClient.put()
-        .uri("/sync/organisation-types/{organisationId}", organisationId)
-        .accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-        .bodyValue(syncUpdateTypesRequest(organisationId))
-        .exchange()
-        .expectStatus()
-        .isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody(SyncTypesResponse::class.java)
-        .returnResult().responseBody!!
+    private fun updateTypes(organisationId: Long) = webTestClient.put()
+      .uri("/sync/organisation-types/{organisationId}", organisationId)
+      .accept(MediaType.APPLICATION_JSON)
+      .contentType(MediaType.APPLICATION_JSON)
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
+      .bodyValue(syncUpdateTypesRequest(organisationId))
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectHeader().contentType(MediaType.APPLICATION_JSON)
+      .expectBody(SyncTypesResponse::class.java)
+      .returnResult().responseBody!!
 
-    private fun updateTypesVersionTwo(organisationId: Long) =
-      webTestClient.put()
-        .uri("/sync/organisation-types/{organisationId}", organisationId)
-        .accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-        .bodyValue(syncUpdateTypesRequestVersionTwo(organisationId))
-        .exchange()
-        .expectStatus()
-        .isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody(SyncTypesResponse::class.java)
-        .returnResult().responseBody!!
+    private fun updateTypesVersionTwo(organisationId: Long) = webTestClient.put()
+      .uri("/sync/organisation-types/{organisationId}", organisationId)
+      .accept(MediaType.APPLICATION_JSON)
+      .contentType(MediaType.APPLICATION_JSON)
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
+      .bodyValue(syncUpdateTypesRequestVersionTwo(organisationId))
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectHeader().contentType(MediaType.APPLICATION_JSON)
+      .expectBody(SyncTypesResponse::class.java)
+      .returnResult().responseBody!!
   }
 }

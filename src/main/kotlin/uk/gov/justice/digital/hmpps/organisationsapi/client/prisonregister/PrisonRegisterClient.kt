@@ -10,12 +10,11 @@ class PrisonRegisterClient(
   @Qualifier("prisonerRegisterWebClient") private val webClient: WebClient,
 ) {
 
-  fun findPrisonNameById(id: String): PrisonName? =
-    webClient
-      .get()
-      .uri("/prisons/names?prison_id=$id")
-      .retrieve()
-      .bodyToMono<List<PrisonName>>()
-      .block()!!
-      .find { it.prisonId == id }
+  fun findPrisonNameById(id: String): PrisonName? = webClient
+    .get()
+    .uri("/prisons/names?prison_id=$id")
+    .retrieve()
+    .bodyToMono<List<PrisonName>>()
+    .block()!!
+    .find { it.prisonId == id }
 }

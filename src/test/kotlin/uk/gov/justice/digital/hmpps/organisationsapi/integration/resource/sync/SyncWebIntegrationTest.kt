@@ -215,30 +215,28 @@ class SyncWebIntegrationTest : PostgresIntegrationTestBase() {
       createdBy = "CREATOR",
     )
 
-    private fun getWebById(organisationWebId: Long) =
-      webTestClient.get()
-        .uri("/sync/organisation-web/{organisationWebId}", organisationWebId)
-        .accept(MediaType.APPLICATION_JSON)
-        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-        .exchange()
-        .expectStatus()
-        .isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody(SyncWebResponse::class.java)
-        .returnResult().responseBody!!
+    private fun getWebById(organisationWebId: Long) = webTestClient.get()
+      .uri("/sync/organisation-web/{organisationWebId}", organisationWebId)
+      .accept(MediaType.APPLICATION_JSON)
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectHeader().contentType(MediaType.APPLICATION_JSON)
+      .expectBody(SyncWebResponse::class.java)
+      .returnResult().responseBody!!
 
-    private fun updateWeb(organisationWebId: Long, organisationId: Long) =
-      webTestClient.put()
-        .uri("/sync/organisation-web/{organisationWebId}", organisationWebId)
-        .accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-        .bodyValue(syncUpdateWebRequest(organisationId))
-        .exchange()
-        .expectStatus()
-        .isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody(SyncWebResponse::class.java)
-        .returnResult().responseBody!!
+    private fun updateWeb(organisationWebId: Long, organisationId: Long) = webTestClient.put()
+      .uri("/sync/organisation-web/{organisationWebId}", organisationWebId)
+      .accept(MediaType.APPLICATION_JSON)
+      .contentType(MediaType.APPLICATION_JSON)
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
+      .bodyValue(syncUpdateWebRequest(organisationId))
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectHeader().contentType(MediaType.APPLICATION_JSON)
+      .expectBody(SyncWebResponse::class.java)
+      .returnResult().responseBody!!
   }
 }
