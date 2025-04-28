@@ -83,6 +83,5 @@ class SyncOrganisationService(
     return organisationRepository.saveAndFlush(changedOrganisation).toModel()
   }
 
-  fun getOrganisationIds(pageable: Pageable): Page<SyncOrganisationId> =
-    organisationRepository.findAll(pageable).toModelIds()
+  fun getOrganisationIds(pageable: Pageable): Page<SyncOrganisationId> = organisationRepository.findAll(pageable).toModelIds()
 }

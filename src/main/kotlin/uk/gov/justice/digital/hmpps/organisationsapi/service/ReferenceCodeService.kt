@@ -10,15 +10,13 @@ import uk.gov.justice.digital.hmpps.organisationsapi.repository.ReferenceCodeRep
 
 @Service
 class ReferenceCodeService(private val referenceCodeRepository: ReferenceCodeRepository) {
-  fun getReferenceDataByGroup(groupCode: ReferenceCodeGroup, sort: Sort, activeOnly: Boolean): List<ReferenceCode> =
-    if (activeOnly) {
-      referenceCodeRepository.findAllByGroupCodeAndIsActiveEquals(groupCode, true, sort).toModel()
-    } else {
-      referenceCodeRepository.findAllByGroupCodeEquals(groupCode, sort).toModel()
-    }
+  fun getReferenceDataByGroup(groupCode: ReferenceCodeGroup, sort: Sort, activeOnly: Boolean): List<ReferenceCode> = if (activeOnly) {
+    referenceCodeRepository.findAllByGroupCodeAndIsActiveEquals(groupCode, true, sort).toModel()
+  } else {
+    referenceCodeRepository.findAllByGroupCodeEquals(groupCode, sort).toModel()
+  }
 
-  fun getReferenceDataByGroupAndCode(groupCode: ReferenceCodeGroup, code: String): ReferenceCode? =
-    referenceCodeRepository.findByGroupCodeAndCode(groupCode, code)?.toModel()
+  fun getReferenceDataByGroupAndCode(groupCode: ReferenceCodeGroup, code: String): ReferenceCode? = referenceCodeRepository.findByGroupCodeAndCode(groupCode, code)?.toModel()
 
   /**
    * Validates a reference code for the supplied group and returns the details if it is. You should allow inactive reference codes

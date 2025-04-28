@@ -285,30 +285,28 @@ class SyncOrganisationsIntegrationTest : PostgresIntegrationTestBase() {
       createdBy = "CREATOR",
     )
 
-    private fun getOrganisationById(organisationId: Long) =
-      webTestClient.get()
-        .uri("/sync/organisation/{organisationId}", organisationId)
-        .accept(MediaType.APPLICATION_JSON)
-        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-        .exchange()
-        .expectStatus()
-        .isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody(SyncOrganisationResponse::class.java)
-        .returnResult().responseBody!!
+    private fun getOrganisationById(organisationId: Long) = webTestClient.get()
+      .uri("/sync/organisation/{organisationId}", organisationId)
+      .accept(MediaType.APPLICATION_JSON)
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectHeader().contentType(MediaType.APPLICATION_JSON)
+      .expectBody(SyncOrganisationResponse::class.java)
+      .returnResult().responseBody!!
 
-    private fun updateOrganisation(organisationId: Long) =
-      webTestClient.put()
-        .uri("/sync/organisation/{organisationId}", organisationId)
-        .accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-        .bodyValue(syncUpdateOrganisationRequest(organisationId))
-        .exchange()
-        .expectStatus()
-        .isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody(SyncOrganisationResponse::class.java)
-        .returnResult().responseBody!!
+    private fun updateOrganisation(organisationId: Long) = webTestClient.put()
+      .uri("/sync/organisation/{organisationId}", organisationId)
+      .accept(MediaType.APPLICATION_JSON)
+      .contentType(MediaType.APPLICATION_JSON)
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
+      .bodyValue(syncUpdateOrganisationRequest(organisationId))
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectHeader().contentType(MediaType.APPLICATION_JSON)
+      .expectBody(SyncOrganisationResponse::class.java)
+      .returnResult().responseBody!!
   }
 }

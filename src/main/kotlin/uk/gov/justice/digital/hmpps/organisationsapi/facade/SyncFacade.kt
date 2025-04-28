@@ -241,8 +241,7 @@ class SyncFacade(
   //  Organisation address phone numbers
   // ================================================================
 
-  fun getAddressPhoneById(organisationAddressPhoneId: Long) =
-    syncAddressPhoneService.getAddressPhoneById(organisationAddressPhoneId)
+  fun getAddressPhoneById(organisationAddressPhoneId: Long) = syncAddressPhoneService.getAddressPhoneById(organisationAddressPhoneId)
 
   fun createAddressPhone(request: SyncCreateAddressPhoneRequest) = syncAddressPhoneService.createAddressPhone(request)
     .also {
@@ -254,27 +253,25 @@ class SyncFacade(
       )
     }
 
-  fun updateAddressPhone(organisationAddressPhoneId: Long, request: SyncUpdateAddressPhoneRequest) =
-    syncAddressPhoneService.updateAddressPhone(organisationAddressPhoneId, request)
-      .also {
-        outboundEventsService.send(
-          outboundEvent = OutboundEvent.ORGANISATION_ADDRESS_PHONE_UPDATED,
-          organisationId = it.organisationId,
-          identifier = it.organisationAddressPhoneId,
-          source = Source.NOMIS,
-        )
-      }
+  fun updateAddressPhone(organisationAddressPhoneId: Long, request: SyncUpdateAddressPhoneRequest) = syncAddressPhoneService.updateAddressPhone(organisationAddressPhoneId, request)
+    .also {
+      outboundEventsService.send(
+        outboundEvent = OutboundEvent.ORGANISATION_ADDRESS_PHONE_UPDATED,
+        organisationId = it.organisationId,
+        identifier = it.organisationAddressPhoneId,
+        source = Source.NOMIS,
+      )
+    }
 
-  fun deleteAddressPhone(organisationAddressPhoneId: Long) =
-    syncAddressPhoneService.deleteAddressPhone(organisationAddressPhoneId)
-      .also {
-        outboundEventsService.send(
-          outboundEvent = OutboundEvent.ORGANISATION_ADDRESS_PHONE_DELETED,
-          organisationId = it.organisationId,
-          identifier = it.organisationAddressPhoneId,
-          source = Source.NOMIS,
-        )
-      }
+  fun deleteAddressPhone(organisationAddressPhoneId: Long) = syncAddressPhoneService.deleteAddressPhone(organisationAddressPhoneId)
+    .also {
+      outboundEventsService.send(
+        outboundEvent = OutboundEvent.ORGANISATION_ADDRESS_PHONE_DELETED,
+        organisationId = it.organisationId,
+        identifier = it.organisationAddressPhoneId,
+        source = Source.NOMIS,
+      )
+    }
 
   // ================================================================
   //  Organisation types

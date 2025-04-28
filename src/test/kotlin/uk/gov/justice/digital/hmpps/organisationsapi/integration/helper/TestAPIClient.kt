@@ -96,19 +96,18 @@ class TestAPIClient(private val webTestClient: WebTestClient, private val jwtAut
     .expectBody(SyncOrganisationResponse::class.java)
     .returnResult().responseBody!!
 
-  fun syncCreateAnEmailAddress(request: SyncCreateEmailRequest) =
-    webTestClient.post()
-      .uri("/sync/organisation-email")
-      .accept(MediaType.APPLICATION_JSON)
-      .contentType(MediaType.APPLICATION_JSON)
-      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-      .bodyValue(request)
-      .exchange()
-      .expectStatus()
-      .isOk
-      .expectHeader().contentType(MediaType.APPLICATION_JSON)
-      .expectBody(SyncEmailResponse::class.java)
-      .returnResult().responseBody!!
+  fun syncCreateAnEmailAddress(request: SyncCreateEmailRequest) = webTestClient.post()
+    .uri("/sync/organisation-email")
+    .accept(MediaType.APPLICATION_JSON)
+    .contentType(MediaType.APPLICATION_JSON)
+    .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
+    .bodyValue(request)
+    .exchange()
+    .expectStatus()
+    .isOk
+    .expectHeader().contentType(MediaType.APPLICATION_JSON)
+    .expectBody(SyncEmailResponse::class.java)
+    .returnResult().responseBody!!
 
   fun syncCreateAnAddress(request: SyncCreateAddressRequest) = webTestClient.post()
     .uri("/sync/organisation-address")
@@ -149,19 +148,18 @@ class TestAPIClient(private val webTestClient: WebTestClient, private val jwtAut
     .expectBody(SyncPhoneResponse::class.java)
     .returnResult().responseBody!!
 
-  fun syncCreateAWebAddress(request: SyncCreateWebRequest) =
-    webTestClient.post()
-      .uri("/sync/organisation-web")
-      .accept(MediaType.APPLICATION_JSON)
-      .contentType(MediaType.APPLICATION_JSON)
-      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-      .bodyValue(request)
-      .exchange()
-      .expectStatus()
-      .isOk
-      .expectHeader().contentType(MediaType.APPLICATION_JSON)
-      .expectBody(SyncWebResponse::class.java)
-      .returnResult().responseBody!!
+  fun syncCreateAWebAddress(request: SyncCreateWebRequest) = webTestClient.post()
+    .uri("/sync/organisation-web")
+    .accept(MediaType.APPLICATION_JSON)
+    .contentType(MediaType.APPLICATION_JSON)
+    .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
+    .bodyValue(request)
+    .exchange()
+    .expectStatus()
+    .isOk
+    .expectHeader().contentType(MediaType.APPLICATION_JSON)
+    .expectBody(SyncWebResponse::class.java)
+    .returnResult().responseBody!!
 
   fun syncReconcileOrganisations(page: Long = 0, size: Long = 10) = webTestClient.get()
     .uri("/sync/organisations/reconcile?page=$page&size=$size")

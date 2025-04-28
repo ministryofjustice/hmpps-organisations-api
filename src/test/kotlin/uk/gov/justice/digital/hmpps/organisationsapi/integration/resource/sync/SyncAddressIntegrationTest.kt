@@ -260,30 +260,28 @@ class SyncAddressIntegrationTest : PostgresIntegrationTestBase() {
       createdBy = "CREATOR",
     )
 
-    private fun getAddressById(organisationAddressId: Long) =
-      webTestClient.get()
-        .uri("/sync/organisation-address/{organisationAddressId}", organisationAddressId)
-        .accept(MediaType.APPLICATION_JSON)
-        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-        .exchange()
-        .expectStatus()
-        .isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody(SyncAddressResponse::class.java)
-        .returnResult().responseBody!!
+    private fun getAddressById(organisationAddressId: Long) = webTestClient.get()
+      .uri("/sync/organisation-address/{organisationAddressId}", organisationAddressId)
+      .accept(MediaType.APPLICATION_JSON)
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectHeader().contentType(MediaType.APPLICATION_JSON)
+      .expectBody(SyncAddressResponse::class.java)
+      .returnResult().responseBody!!
 
-    private fun updateAddress(organisationAddressId: Long, organisationId: Long) =
-      webTestClient.put()
-        .uri("/sync/organisation-address/{organisationAddressId}", organisationAddressId)
-        .accept(MediaType.APPLICATION_JSON)
-        .contentType(MediaType.APPLICATION_JSON)
-        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
-        .bodyValue(syncUpdateAddressRequest(organisationId))
-        .exchange()
-        .expectStatus()
-        .isOk
-        .expectHeader().contentType(MediaType.APPLICATION_JSON)
-        .expectBody(SyncAddressResponse::class.java)
-        .returnResult().responseBody!!
+    private fun updateAddress(organisationAddressId: Long, organisationId: Long) = webTestClient.put()
+      .uri("/sync/organisation-address/{organisationAddressId}", organisationAddressId)
+      .accept(MediaType.APPLICATION_JSON)
+      .contentType(MediaType.APPLICATION_JSON)
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS_MIGRATION")))
+      .bodyValue(syncUpdateAddressRequest(organisationId))
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectHeader().contentType(MediaType.APPLICATION_JSON)
+      .expectBody(SyncAddressResponse::class.java)
+      .returnResult().responseBody!!
   }
 }
