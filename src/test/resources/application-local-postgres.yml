@@ -3,3 +3,8 @@ spring:
     url: 'jdbc:postgresql://localhost:5432/organisations-db'
     username: organisations
     password: organisations
+  flyway:
+    locations: classpath:/migrations/common,classpath:/migrations/test
+    placeholders:
+      dpr_user: dpr_user
+      dpr_password: dpr_password
