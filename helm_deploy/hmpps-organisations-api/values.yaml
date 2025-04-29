@@ -67,6 +67,9 @@ generic-service:
     hmpps-organisations-api-sentry:
       SENTRY_AUTH_TOKEN: "SENTRY_AUTH_TOKEN"
       SENTRY_DSN: "SENTRY_DSN"
+    digital-prison-reporting:
+      DPR_USER: "DPR_USER"
+      DPR_PASSWORD: "DPR_PASSWORD"
 
   allowlist:
     groups:

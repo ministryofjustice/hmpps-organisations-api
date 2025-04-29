@@ -7,6 +7,9 @@ spring:
 
   flyway:
     locations: classpath:/migrations/common,classpath:/migrations/test
+    placeholders:
+      dpr_user: dpr_user
+      dpr_password: dpr_password
 
 management.endpoint:
   health.cache.time-to-live: 0

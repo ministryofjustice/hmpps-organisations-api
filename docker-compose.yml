@@ -12,6 +12,8 @@ services:
       POSTGRES_DB: organisations-db
       POSTGRES_USER: organisations
       POSTGRES_PASSWORD: organisations
+      DPR_USER: dpr_user
+      DPR_PASSWORD: dpr_password
 
 networks:
   hmpps:
