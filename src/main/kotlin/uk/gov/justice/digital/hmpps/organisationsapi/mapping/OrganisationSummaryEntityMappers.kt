@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.organisationsapi.mapping
 
 import org.springframework.data.domain.Page
+import org.springframework.data.web.PagedModel
 import uk.gov.justice.digital.hmpps.organisationsapi.entity.OrganisationSummaryEntity
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.OrganisationSummary
 
@@ -23,4 +24,4 @@ fun OrganisationSummaryEntity.toModel(): OrganisationSummary = OrganisationSumma
   businessPhoneNumberExtension = this.businessPhoneNumberExtension,
 )
 
-fun Page<OrganisationSummaryEntity>.toModel(): Page<OrganisationSummary> = map { it.toModel() }
+fun Page<OrganisationSummaryEntity>.toModel(): PagedModel<OrganisationSummary> = PagedModel(map { it.toModel() })

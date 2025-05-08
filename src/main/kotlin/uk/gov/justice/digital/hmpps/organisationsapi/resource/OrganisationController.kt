@@ -12,6 +12,7 @@ import jakarta.validation.Valid
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort.Direction
 import org.springframework.data.web.PageableDefault
+import org.springframework.data.web.PagedModel
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
@@ -28,7 +29,6 @@ import uk.gov.justice.digital.hmpps.organisationsapi.model.request.CreateOrganis
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.OrganisationSearchRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.OrganisationDetails
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.OrganisationSummary
-import uk.gov.justice.digital.hmpps.organisationsapi.model.response.OrganisationSummaryResultItemPage
 import uk.gov.justice.digital.hmpps.organisationsapi.swagger.AuthApiResponses
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 
@@ -137,12 +137,6 @@ class OrganisationController(private val organisationFacade: OrganisationFacade)
       ApiResponse(
         responseCode = "200",
         description = "Organisations searched successfully. There may be no results.",
-        content = [
-          Content(
-            mediaType = "application/json",
-            schema = Schema(implementation = OrganisationSummaryResultItemPage::class),
-          ),
-        ],
       ),
       ApiResponse(
         responseCode = "400",
@@ -160,5 +154,5 @@ class OrganisationController(private val organisationFacade: OrganisationFacade)
     @Parameter(description = "Pageable configurations", required = false)
     @PageableDefault(sort = ["organisationName"], direction = Direction.ASC)
     pageable: Pageable,
-  ) = organisationFacade.search(request, pageable)
+  ): PagedModel<OrganisationSummary> = organisationFacade.search(request, pageable)
 }

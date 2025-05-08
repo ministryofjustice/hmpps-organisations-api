@@ -59,12 +59,13 @@ class OrganisationSearchRepository(
     entity: Root<OrganisationSummaryEntity>,
   ) {
     if (pageable.sort.isSorted) {
-      pageable.sort.forEach {
+      val sortable = pageable.sort.map {
         when {
-          it.isAscending -> cq.orderBy(cb.asc(entity.get<String>(it.property)))
-          else -> cq.orderBy(cb.desc(entity.get<String>(it.property)))
+          it.isAscending -> cb.asc(entity.get<String>(it.property))
+          else -> cb.desc(entity.get<String>(it.property))
         }
-      }
+      }.toList()
+      cq.orderBy(sortable)
     }
   }
 
