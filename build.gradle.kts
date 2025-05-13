@@ -41,9 +41,9 @@ dependencies {
   // Test dependencies
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
-  testImplementation("net.javacrumbs.json-unit:json-unit:4.1.0")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:4.1.0")
-  testImplementation("net.javacrumbs.json-unit:json-unit-json-path:4.1.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit:4.1.1")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:4.1.1")
+  testImplementation("net.javacrumbs.json-unit:json-unit-json-path:4.1.1")
   testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
   testImplementation("org.mockito:mockito-inline:5.2.0")
   testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -51,7 +51,7 @@ dependencies {
   testImplementation("org.testcontainers:postgresql:1.21.0")
   testImplementation("org.wiremock:wiremock-standalone:3.13.0")
   testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.4.3")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.26") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.27") {
     exclude(group = "io.swagger.core.v3")
   }
 }
