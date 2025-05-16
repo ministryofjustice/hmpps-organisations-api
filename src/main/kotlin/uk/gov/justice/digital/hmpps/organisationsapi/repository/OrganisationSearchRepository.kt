@@ -6,6 +6,7 @@ import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
+import org.hibernate.query.criteria.HibernateCriteriaBuilder
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.Pageable
@@ -74,8 +75,11 @@ class OrganisationSearchRepository(
     cb: CriteriaBuilder,
     entity: Root<OrganisationSummaryEntity>,
   ): MutableList<Predicate> {
+    if (cb !is HibernateCriteriaBuilder) {
+      throw RuntimeException("Configuration issue. Cannot do ilike unless using hibernate.")
+    }
     val predicates: MutableList<Predicate> = ArrayList()
-    predicates.add(cb.ilikePredicate(entity, "organisationName", request.name))
+    predicates.add(cb.ilike(entity.get("organisationName"), "%${request.name}%", null))
     return predicates
   }
 }
