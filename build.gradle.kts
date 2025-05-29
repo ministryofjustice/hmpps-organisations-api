@@ -24,13 +24,13 @@ dependencies {
   implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.4.5")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.5")
-  implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.13.1")
+  implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.13.2")
 
   implementation("org.springframework.boot:spring-boot-starter-validation")
 
   // Database dependencies
   runtimeOnly("org.flywaydb:flyway-database-postgresql")
-  runtimeOnly("org.postgresql:postgresql:42.7.5")
+  runtimeOnly("org.postgresql:postgresql:42.7.6")
 
   // OpenAPI
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.8")
