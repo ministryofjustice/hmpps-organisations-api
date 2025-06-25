@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.2.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.0"
   id("org.openapi.generator") version "7.13.0"
-  kotlin("plugin.spring") version "2.1.21"
-  kotlin("plugin.jpa") version "2.1.21"
+  kotlin("plugin.spring") version "2.2.0"
+  kotlin("plugin.jpa") version "2.2.0"
 }
 
 allOpen {
@@ -21,9 +21,9 @@ dependencies {
   // Spring boot dependencies
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.4.6")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.4.7")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.5")
+  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.6")
   implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.14.0")
 
   implementation("org.springframework.boot:spring-boot-starter-validation")
@@ -48,10 +48,10 @@ dependencies {
   testImplementation("org.mockito:mockito-inline:5.2.0")
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.security:spring-security-test")
-  testImplementation("org.testcontainers:postgresql:1.21.1")
+  testImplementation("org.testcontainers:postgresql:1.21.2")
   testImplementation("org.wiremock:wiremock-standalone:3.13.1")
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.4.6")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.29") {
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.4.7")
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.30") {
     exclude(group = "io.swagger.core.v3")
   }
 }
