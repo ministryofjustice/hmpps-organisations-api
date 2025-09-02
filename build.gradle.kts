@@ -1,6 +1,6 @@
 plugins {
   id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.0.0"
-  id("org.openapi.generator") version "7.14.0"
+  id("org.openapi.generator") version "7.15.0"
   kotlin("plugin.spring") version "2.2.10"
   kotlin("plugin.jpa") version "2.2.10"
 }
@@ -33,7 +33,7 @@ dependencies {
   runtimeOnly("org.postgresql:postgresql:42.7.7")
 
   // OpenAPI
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.11")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.12")
   implementation("org.openapitools:jackson-databind-nullable:0.2.7")
 
   implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.19.0")
@@ -51,7 +51,7 @@ dependencies {
   testImplementation("org.testcontainers:postgresql:1.21.3")
   testImplementation("org.wiremock:wiremock-standalone:3.13.1")
   testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.5.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.32") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.33") {
     exclude(group = "io.swagger.core.v3")
   }
 }
