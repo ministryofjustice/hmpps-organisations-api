@@ -24,7 +24,7 @@ dependencies {
   implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.7.0")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:5.4.11")
-  implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.21.1")
+  implementation("io.sentry:sentry-spring-boot-starter-jakarta:8.22.0")
 
   implementation("org.springframework.boot:spring-boot-starter-validation")
 
