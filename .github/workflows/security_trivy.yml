@@ -5,6 +5,11 @@ on:
     - cron: "16 8 * * MON-FRI" # Every weekday
 jobs:
   security-kotlin-trivy-check:
+    permissions:
+      packages: read
+      contents: read
+      actions: read
+      security-events: write
     name: Project security trivy dependency check
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/security_trivy.yml@v2 # WORKFLOW_VERSION
     with:
