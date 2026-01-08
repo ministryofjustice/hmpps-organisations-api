@@ -17,6 +17,14 @@ configurations {
   testImplementation { exclude(group = "org.junit.vintage") }
 }
 
+configurations.all {
+  resolutionStrategy.eachDependency {
+    if (requested.group == "io.netty") {
+      useVersion("4.1.129.Final")
+      because("Fix CVE-2025-67735")
+    }
+  }
+}
 dependencies {
   // Spring boot dependencies
   implementation("org.springframework.boot:spring-boot-starter-security")
