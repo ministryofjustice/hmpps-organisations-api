@@ -1,8 +1,8 @@
 package uk.gov.justice.digital.hmpps.organisationsapi.config
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import tools.jackson.databind.ObjectMapper
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.HmppsQueueOutboundEventsPublisher
 import uk.gov.justice.digital.hmpps.organisationsapi.service.events.OutboundEventsPublisher
 import uk.gov.justice.hmpps.sqs.HmppsQueueService

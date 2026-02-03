@@ -1,6 +1,5 @@
 package uk.gov.justice.digital.hmpps.organisationsapi.config
 
-import com.fasterxml.jackson.databind.exc.MismatchedInputException
 import jakarta.persistence.EntityNotFoundException
 import jakarta.validation.ValidationException
 import org.apache.commons.lang3.exception.ExceptionUtils
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException
 import org.springframework.web.servlet.resource.NoResourceFoundException
+import tools.jackson.databind.exc.MismatchedInputException
 import uk.gov.justice.digital.hmpps.organisationsapi.exception.InvalidReferenceCodeGroupException
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.DuplicateOrganisationException
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
@@ -32,8 +32,8 @@ class OrganisationsApiExceptionHandler {
     .body(
       ErrorResponse(
         status = BAD_REQUEST,
-        userMessage = "Validation failure: ${e.message}",
-        developerMessage = e.message,
+        userMessage = "Validation failure: ${e.message.orEmpty()}",
+        developerMessage = e.message.orEmpty(),
       ),
     ).also { log.info("Validation exception: {}", e.message) }
 
@@ -43,8 +43,8 @@ class OrganisationsApiExceptionHandler {
     .body(
       ErrorResponse(
         status = NOT_FOUND,
-        userMessage = "No resource found failure: ${e.message}",
-        developerMessage = e.message,
+        userMessage = "No resource found failure: ${e.message.orEmpty()}",
+        developerMessage = e.message.orEmpty(),
       ),
     ).also { log.info("No resource found exception: {}", e.message) }
 
@@ -54,8 +54,8 @@ class OrganisationsApiExceptionHandler {
     .body(
       ErrorResponse(
         status = NOT_FOUND,
-        userMessage = "Entity not found : ${e.message}",
-        developerMessage = e.message,
+        userMessage = "Entity not found : ${e.message.orEmpty()}",
+        developerMessage = e.message.orEmpty(),
       ),
     ).also { log.info("Entity not found exception: {}", e.message) }
 
@@ -65,14 +65,14 @@ class OrganisationsApiExceptionHandler {
     .body(
       ErrorResponse(
         status = FORBIDDEN,
-        userMessage = "Forbidden: ${e.message}",
-        developerMessage = e.message,
+        userMessage = "Forbidden: ${e.message.orEmpty()}",
+        developerMessage = e.message.orEmpty(),
       ),
     ).also { log.debug("Forbidden (403) returned: {}", e.message) }
 
   @ExceptionHandler(MethodArgumentTypeMismatchException::class)
   fun handleInvalidReferenceCodeGroupException(e: MethodArgumentTypeMismatchException): ResponseEntity<ErrorResponse> {
-    var message = e.message
+    var message: String? = e.message
     val rootCause = ExceptionUtils.getRootCause(e)
     if (rootCause != null && rootCause is InvalidReferenceCodeGroupException) {
       message = rootCause.message
@@ -83,7 +83,7 @@ class OrganisationsApiExceptionHandler {
         ErrorResponse(
           status = BAD_REQUEST,
           userMessage = "Request parameters are invalid",
-          developerMessage = message,
+          developerMessage = message.orEmpty(),
         ),
       ).also { log.info("Failed to parse request parameters: {}", e.message) }
   }
@@ -94,8 +94,8 @@ class OrganisationsApiExceptionHandler {
     .body(
       ErrorResponse(
         status = INTERNAL_SERVER_ERROR,
-        userMessage = "Unexpected error: ${e.message}",
-        developerMessage = e.message,
+        userMessage = "Unexpected error: ${e.message.orEmpty()}",
+        developerMessage = e.message.orEmpty(),
       ),
     ).also { log.error("Unexpected exception", e) }
 
@@ -111,7 +111,7 @@ class OrganisationsApiExceptionHandler {
       ErrorResponse(
         status = BAD_REQUEST,
         userMessage = message,
-        developerMessage = e.message,
+        developerMessage = e.message.orEmpty(),
       ),
     ).also { log.error(message, e) }
   }
@@ -123,9 +123,9 @@ class OrganisationsApiExceptionHandler {
       ErrorResponse(
         status = BAD_REQUEST,
         userMessage = "Validation failure(s): ${
-          e.allErrors.map { it.defaultMessage }.distinct().sorted().joinToString(System.lineSeparator())
+          e.allErrors.mapNotNull { it.defaultMessage }.distinct().sorted().joinToString(System.lineSeparator())
         }",
-        developerMessage = e.message,
+        developerMessage = e.message.orEmpty(),
       ),
     )
 
@@ -135,8 +135,8 @@ class OrganisationsApiExceptionHandler {
     .body(
       ErrorResponse(
         status = CONFLICT,
-        userMessage = e.message,
-        developerMessage = e.message,
+        userMessage = e.message.orEmpty(),
+        developerMessage = e.message.orEmpty(),
       ),
     )
 
@@ -146,17 +146,38 @@ class OrganisationsApiExceptionHandler {
     .body(
       ErrorResponse(
         status = BAD_REQUEST,
-        userMessage = "Validation failure: ${e.message}",
-        developerMessage = e.message,
+        userMessage = "Validation failure: ${e.message.orEmpty()}",
+        developerMessage = e.message.orEmpty(),
       ),
     ).also { log.info("Validation exception: {}", e.message) }
 
   private fun sanitiseMismatchInputException(cause: MismatchedInputException): String {
     val name = cause.path.fold("") { jsonPath, ref ->
-      val suffix = when {
-        ref.index > -1 -> "[${ref.index}]"
-        else -> ".${ref.fieldName}"
+      // Use reflection to support different Jackson Reference APIs (fieldName/propertyName/index)
+      val index = try {
+        val m = ref.javaClass.getMethod("getIndex")
+        (m.invoke(ref) as? Number)?.toInt() ?: -1
+      } catch (e: Exception) {
+        -1
       }
+
+      val fieldName = try {
+        val m = ref.javaClass.getMethod("getFieldName")
+        m.invoke(ref) as? String
+      } catch (e1: Exception) {
+        try {
+          val m2 = ref.javaClass.getMethod("getPropertyName")
+          m2.invoke(ref) as? String
+        } catch (e2: Exception) {
+          null
+        }
+      }
+
+      val suffix = when {
+        index > -1 -> "[$index]"
+        else -> ".$fieldName"
+      }
+
       (jsonPath + suffix).removePrefix(".")
     }
     val problem = when (cause.cause) {

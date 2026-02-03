@@ -1,7 +1,5 @@
 package uk.gov.justice.digital.hmpps.organisationsapi.config
 
-import com.fasterxml.jackson.annotation.JsonInclude
-import com.fasterxml.jackson.databind.DeserializationFeature
 import io.swagger.v3.core.util.PrimitiveType
 import io.swagger.v3.oas.models.Components
 import io.swagger.v3.oas.models.OpenAPI
@@ -14,18 +12,20 @@ import io.swagger.v3.oas.models.tags.Tag
 import jakarta.annotation.PostConstruct
 import org.hibernate.internal.util.collections.CollectionHelper.listOf
 import org.openapitools.jackson.nullable.JsonNullableModule
-import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer
 import org.springframework.boot.info.BuildProperties
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.http.converter.json.Jackson2ObjectMapperBuilder
+import tools.jackson.databind.DeserializationFeature
+import tools.jackson.databind.SerializationFeature
+import tools.jackson.databind.json.JsonMapper
 
 @Configuration
 class OpenApiConfiguration(buildProperties: BuildProperties) {
-  private val version: String = buildProperties.version
+  private val version: String? = buildProperties.version
 
   @Bean
-  fun customOpenAPI(buildProperties: BuildProperties): OpenAPI? = OpenAPI()
+  fun customOpenAPI(): OpenAPI? = OpenAPI()
     .components(
       Components().addSecuritySchemes(
         "bearer-jwt",
@@ -74,8 +74,8 @@ class OpenApiConfiguration(buildProperties: BuildProperties) {
   fun jsonNullableModule() = JsonNullableModule()
 
   @Bean
-  fun jsonCustomizer(): Jackson2ObjectMapperBuilderCustomizer = Jackson2ObjectMapperBuilderCustomizer { builder: Jackson2ObjectMapperBuilder ->
-    builder.serializationInclusion(JsonInclude.Include.NON_NULL)
-    builder.featuresToEnable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+  fun jsonMapperCustomizer(): JsonMapperBuilderCustomizer = JsonMapperBuilderCustomizer { builder: JsonMapper.Builder? ->
+    builder?.enable(DeserializationFeature.FAIL_ON_NULL_FOR_PRIMITIVES)
+    builder?.enable(SerializationFeature.INDENT_OUTPUT)
   }
 }
