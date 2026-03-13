@@ -3,7 +3,6 @@ package uk.gov.justice.digital.hmpps.organisationsapi.integration.containers
 import io.github.cdimascio.dotenv.dotenv
 import org.slf4j.LoggerFactory
 import org.testcontainers.containers.GenericContainer
-import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.output.Slf4jLogConsumer
 import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.utility.DockerImageName
