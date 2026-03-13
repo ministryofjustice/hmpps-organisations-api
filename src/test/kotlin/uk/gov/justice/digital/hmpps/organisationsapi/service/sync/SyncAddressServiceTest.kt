@@ -162,7 +162,7 @@ class SyncAddressServiceTest {
       Optional.of(addressEntity(organisationAddressId)),
     )
 
-    whenever(organisationAddressRepository.saveAndFlush(any())).thenReturn(
+    whenever(organisationAddressRepository.saveAndFlush<OrganisationAddressEntity>(any())).thenReturn(
       request.toEntity(organisationAddressId, "CREATOR", LocalDateTime.now().minusHours(1)),
     )
 

@@ -72,7 +72,7 @@ class OrganisationsApiExceptionHandler {
 
   @ExceptionHandler(MethodArgumentTypeMismatchException::class)
   fun handleInvalidReferenceCodeGroupException(e: MethodArgumentTypeMismatchException): ResponseEntity<ErrorResponse> {
-    var message = e.message
+    var message: String? = e.message
     val rootCause = ExceptionUtils.getRootCause(e)
     if (rootCause != null && rootCause is InvalidReferenceCodeGroupException) {
       message = rootCause.message
@@ -123,7 +123,7 @@ class OrganisationsApiExceptionHandler {
       ErrorResponse(
         status = BAD_REQUEST,
         userMessage = "Validation failure(s): ${
-          e.allErrors.map { it.defaultMessage }.distinct().sorted().joinToString(System.lineSeparator())
+          e.allErrors.map { it.defaultMessage ?: "Validation error" }.distinct().sorted().joinToString(System.lineSeparator())
         }",
         developerMessage = e.message,
       ),

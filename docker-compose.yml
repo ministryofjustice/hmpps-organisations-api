@@ -1,4 +1,3 @@
-version: "3"
 services:
   db:
     image: postgres:latest
@@ -7,7 +6,7 @@ services:
     container_name: organisations-db
     restart: always
     ports:
-      - "5432:5432"
+      - "${LOCAL_DB_PORT:-5432}:5432"
     environment:
       POSTGRES_DB: organisations-db
       POSTGRES_USER: organisations

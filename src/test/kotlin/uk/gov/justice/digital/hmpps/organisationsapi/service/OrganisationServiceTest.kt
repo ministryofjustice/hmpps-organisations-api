@@ -211,7 +211,7 @@ class OrganisationServiceTest {
         updatedTime = request.updatedTime,
       )
 
-      whenever(organisationRepository.saveAndFlush(any())).thenReturn(savedEntity)
+      whenever(organisationRepository.saveAndFlush<OrganisationEntity>(any())).thenReturn(savedEntity)
       whenever(prisonRegisterClient.findPrisonNameById("C1")).thenReturn(PrisonName("C1", "Test Prison"))
 
       // When
@@ -262,7 +262,7 @@ class OrganisationServiceTest {
         updatedTime = request.updatedTime,
       )
 
-      whenever(organisationRepository.saveAndFlush(any())).thenReturn(savedEntity)
+      whenever(organisationRepository.saveAndFlush<OrganisationEntity>(any())).thenReturn(savedEntity)
       whenever(prisonRegisterClient.findPrisonNameById("C1")).thenReturn(null)
 
       // When
@@ -314,7 +314,7 @@ class OrganisationServiceTest {
         updatedTime = request.updatedTime,
       )
 
-      whenever(organisationRepository.saveAndFlush(any())).thenReturn(savedEntity)
+      whenever(organisationRepository.saveAndFlush<OrganisationEntity>(any())).thenReturn(savedEntity)
       whenever(prisonRegisterClient.findPrisonNameById("C1")).thenReturn(null)
 
       // When

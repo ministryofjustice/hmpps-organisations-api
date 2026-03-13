@@ -1,10 +1,16 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Run API Locally" type="SpringBootApplicationConfigurationType" factoryName="Spring Boot">
     <option name="ACTIVE_PROFILES" value="stdout,local" />
+    <option name="envFilePaths">
+      <option value="$PROJECT_DIR$/.env" />
+    </option>
     <module name="hmpps-organisations-api.main" />
+    <selectedOptions>
+      <option name="environmentVariables" />
+    </selectedOptions>
     <option name="SPRING_BOOT_MAIN_CLASS" value="uk.gov.justice.digital.hmpps.organisationsapi.OrganisationsApi" />
     <extension name="net.ashald.envfile">
-      <option name="IS_ENABLED" value="true" />
+      <option name="IS_ENABLED" value="false" />
       <option name="IS_SUBST" value="false" />
       <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
       <option name="IS_IGNORE_MISSING_FILES" value="false" />

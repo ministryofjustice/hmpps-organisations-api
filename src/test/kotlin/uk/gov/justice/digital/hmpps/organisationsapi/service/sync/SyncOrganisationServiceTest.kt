@@ -117,7 +117,7 @@ class SyncOrganisationServiceTest {
       val request = syncUpdateOrganisationRequest(6L)
 
       whenever(orgWithFixedIdRepository.findById(6L)).thenReturn(Optional.of(orgWithFixedIdEntity(6L)))
-      whenever(orgWithFixedIdRepository.saveAndFlush(any())).thenReturn(
+      whenever(orgWithFixedIdRepository.saveAndFlush<OrganisationWithFixedIdEntity>(any())).thenReturn(
         request.toEntity(createdBy = "CREATOR", createdTime = LocalDateTime.now().minusHours(1)),
       )
 

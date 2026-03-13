@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: 'jdbc:postgresql://localhost:5432/organisations-db'
+    url: 'jdbc:postgresql://localhost:${POSTGRES_TEST_DB_PORT:-5432}/organisations-db'
     username: organisations
     password: organisations
   flyway:
