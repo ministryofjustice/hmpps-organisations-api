@@ -17,16 +17,6 @@ configurations {
   testImplementation { exclude(group = "org.junit.vintage") }
 }
 
-configurations.all {
-  resolutionStrategy.eachDependency {
-    if (requested.group == "io.netty" &&
-      !requested.name.startsWith("netty-tcnative")
-    ) {
-      useVersion("4.2.10.Final")
-      because("Fix CVE-2025-67735")
-    }
-  }
-}
 dependencies {
   // Spring boot dependencies
   implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:2.0.2")
