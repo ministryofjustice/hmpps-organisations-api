@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.0.4"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.0.5"
   id("org.openapi.generator") version "7.20.0"
-  kotlin("plugin.spring") version "2.3.0"
-  kotlin("plugin.jpa") version "2.3.0"
+  kotlin("plugin.spring") version "2.3.10"
+  kotlin("plugin.jpa") version "2.3.10"
 }
 
 allOpen {
@@ -24,8 +24,8 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-security")
   implementation("org.springframework.boot:spring-boot-starter-flyway")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.0.1")
-  implementation("io.sentry:sentry-spring-boot-4-starter:8.33.0")
+  implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.1.0")
+  implementation("io.sentry:sentry-spring-boot-4-starter:8.35.0")
   implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
   implementation("org.springframework.boot:spring-boot-starter-validation")
 
@@ -39,7 +39,7 @@ dependencies {
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2")
   implementation("org.openapitools:jackson-databind-nullable:0.2.9")
 
-  implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.21.0")
+  implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.25.0")
 
   // Test dependencies
   testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:2.0.2")
@@ -48,9 +48,9 @@ dependencies {
   }
   testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
-  testImplementation("net.javacrumbs.json-unit:json-unit:5.1.0")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:5.1.0")
-  testImplementation("net.javacrumbs.json-unit:json-unit-json-path:5.1.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit:5.1.1")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:5.1.1")
+  testImplementation("net.javacrumbs.json-unit:json-unit-json-path:5.1.1")
   testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
   testImplementation("org.mockito:mockito-inline:5.2.0")
   testImplementation("org.springframework.boot:spring-boot-starter-webclient-test")
@@ -59,7 +59,7 @@ dependencies {
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.testcontainers:testcontainers-postgresql:2.0.3")
   testImplementation("org.wiremock:wiremock-standalone:3.13.2")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.35") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.39") {
     exclude(group = "io.swagger.core.v3")
   }
 }
