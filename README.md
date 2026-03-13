@@ -12,7 +12,7 @@ These organisations are referred to as CORPORATES within NOMIS.
 
 Tools required locally
 
-* JDK v21+
+* JDK v25+
 * Kotlin plugin (Intellij)
 * docker
 * docker-compose

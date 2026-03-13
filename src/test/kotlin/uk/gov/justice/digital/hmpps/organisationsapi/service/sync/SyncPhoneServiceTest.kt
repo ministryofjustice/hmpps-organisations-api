@@ -139,7 +139,7 @@ class SyncPhoneServiceTest {
       Optional.of(phoneEntity(organisationPhoneId)),
     )
 
-    whenever(organisationPhoneRepository.saveAndFlush(any())).thenReturn(
+    whenever(organisationPhoneRepository.saveAndFlush<OrganisationPhoneEntity>(any())).thenReturn(
       request.toEntity(organisationPhoneId, "CREATOR", LocalDateTime.now().minusHours(1)),
     )
 

@@ -131,7 +131,7 @@ class SyncEmailServiceTest {
       Optional.of(emailEntity(organisationEmailId)),
     )
 
-    whenever(organisationEmailRepository.saveAndFlush(any())).thenReturn(
+    whenever(organisationEmailRepository.saveAndFlush<OrganisationEmailEntity>(any())).thenReturn(
       request.toEntity(organisationEmailId, "CREATOR", LocalDateTime.now().minusHours(1)),
     )
 

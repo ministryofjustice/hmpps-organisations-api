@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.0.3"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.0.4"
   id("org.openapi.generator") version "7.20.0"
   kotlin("plugin.spring") version "2.3.0"
   kotlin("plugin.jpa") version "2.3.0"
@@ -68,7 +68,7 @@ dependencies {
   testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
   testImplementation("org.springframework.boot:spring-boot-starter-test")
   testImplementation("org.springframework.security:spring-security-test")
-  testImplementation("org.testcontainers:postgresql:1.21.3")
+  testImplementation("org.testcontainers:testcontainers-postgresql:2.0.3")
   testImplementation("org.wiremock:wiremock-standalone:3.13.2")
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.35") {
     exclude(group = "io.swagger.core.v3")
@@ -76,12 +76,17 @@ dependencies {
 }
 
 kotlin {
-  jvmToolchain(21)
+  jvmToolchain(25)
+}
+
+java {
+  sourceCompatibility = JavaVersion.VERSION_24
+  targetCompatibility = JavaVersion.VERSION_24
 }
 
 tasks {
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
-    compilerOptions.jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
+    compilerOptions.jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_24
     compilerOptions.freeCompilerArgs.add("-Xannotation-default-target=param-property")
   }
 }

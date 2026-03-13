@@ -131,7 +131,7 @@ class SyncWebServiceTest {
       Optional.of(webEntity(organisationWebId)),
     )
 
-    whenever(organisationWebAddressRepository.saveAndFlush(any())).thenReturn(
+    whenever(organisationWebAddressRepository.saveAndFlush<OrganisationWebAddressEntity>(any())).thenReturn(
       request.toEntity(organisationWebId, "CREATOR", LocalDateTime.now().minusHours(1)),
     )
 

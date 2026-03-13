@@ -89,8 +89,8 @@ class SyncAddressPhoneServiceTest {
       val request = createOrganisationAddressPhoneRequest()
 
       whenever(organisationAddressRepository.findById(3L)).thenReturn(Optional.of(organisationAddressEntity()))
-      whenever(organisationPhoneRepository.saveAndFlush(any())).thenReturn(organisationPhoneEntity())
-      whenever(organisationAddressPhoneRepository.saveAndFlush(any())).thenReturn(organisationAddressPhoneEntity())
+      whenever(organisationPhoneRepository.saveAndFlush<OrganisationPhoneEntity>(any())).thenReturn(organisationPhoneEntity())
+      whenever(organisationAddressPhoneRepository.saveAndFlush<OrganisationAddressPhoneEntity>(any())).thenReturn(organisationAddressPhoneEntity())
 
       val response = syncService.createAddressPhone(request)
 
@@ -160,8 +160,8 @@ class SyncAddressPhoneServiceTest {
 
       whenever(organisationAddressPhoneRepository.findById(4L)).thenReturn(Optional.of(organisationAddressPhoneEntity()))
       whenever(organisationPhoneRepository.findById(2L)).thenReturn(Optional.of(organisationPhoneEntity()))
-      whenever(organisationPhoneRepository.saveAndFlush(any())).thenReturn(organisationPhoneEntity())
-      whenever(organisationAddressPhoneRepository.saveAndFlush(any())).thenReturn(
+      whenever(organisationPhoneRepository.saveAndFlush<OrganisationPhoneEntity>(any())).thenReturn(organisationPhoneEntity())
+      whenever(organisationAddressPhoneRepository.saveAndFlush<OrganisationAddressPhoneEntity>(any())).thenReturn(
         organisationAddressPhoneEntity(updatedBy = request.updatedBy, updatedTime = request.updatedTime),
       )
 
