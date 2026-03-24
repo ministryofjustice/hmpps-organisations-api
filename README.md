@@ -1,6 +1,6 @@
 # hmpps-organisations-api
 
-[![Ministry of Justice Repository Compliance Badge](https://github-community.service.justice.gov.uk/repository-standards/api/hmpps-organisations-api/badge)](https://github-community.service.justice.gov.uk/repository-standards/hmpps-organisations-api)
+[![Ministry of Justice Repository Compliance Badge](https://github-community.service.justice.gov.uk/repository-standards/api/hmpps-organisations-api/badge?style=flat)](https://github-community.service.justice.gov.uk/repository-standards/hmpps-organisations-api)
 [![Docker Repository on ghcr](https://img.shields.io/badge/ghcr.io-repository-2496ED.svg?logo=docker)](https://ghcr.io/ministryofjustice/hmpps-organisations-api)
 [![API docs](https://img.shields.io/badge/API_docs_-view-85EA2D.svg?logo=swagger)](https://organisations-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html#/)
 
