@@ -98,3 +98,5 @@ sentry:
   traces-sample-rate: ${SENTRY_TRACES_SAMPLE_RATE}
   ignored-errors: ${SENTRY_IGNORED_EXCEPTIONS_FOR_TYPE}
   exception-resolver-order: -2147483647
+
+springdoc.swagger-ui.version: 5.32.1
