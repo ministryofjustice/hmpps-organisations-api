@@ -1,5 +1,6 @@
 package uk.gov.justice.digital.hmpps.organisationsapi.integration.resource.migrate
 
+import jakarta.transaction.Transactional
 import org.apache.commons.lang3.RandomUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -25,6 +26,7 @@ import uk.gov.justice.digital.hmpps.organisationsapi.repository.OrganisationWebA
 import java.time.LocalDate
 import java.time.LocalDateTime
 
+@Transactional
 class MigrateOrganisationIntegrationTest : PostgresIntegrationTestBase() {
 
   private val corporateId: Long = RandomUtils.secure().randomLong(1, 10000)
