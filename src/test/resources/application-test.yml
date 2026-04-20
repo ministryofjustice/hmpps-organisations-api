@@ -50,3 +50,9 @@ feature:
         deleted: true
       organisation-types:
         updated: true
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
