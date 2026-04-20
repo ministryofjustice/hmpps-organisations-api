@@ -30,3 +30,9 @@ api:
     url:
       hmpps-auth: https://sign-in-dev.hmpps.service.justice.gov.uk/auth
       prison-register: https://prison-register-dev.hmpps.service.justice.gov.uk
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
