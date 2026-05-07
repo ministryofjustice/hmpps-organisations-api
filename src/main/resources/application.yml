@@ -99,10 +99,9 @@ sentry:
   ignored-errors: ${SENTRY_IGNORED_EXCEPTIONS_FOR_TYPE}
   exception-resolver-order: -2147483647
 
-springdoc.swagger-ui.version: 5.32.1
-
 springdoc:
   api-docs:
     enabled: false
   swagger-ui:
     enabled: false
+    version: 5.32.2
