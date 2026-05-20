@@ -25,7 +25,7 @@ class HmppsAuthApiExtension :
   }
 
   override fun beforeEach(context: ExtensionContext) {
-    hmppsAuthMockServer.resetRequests()
+    hmppsAuthMockServer.resetAll()
     hmppsAuthMockServer.stubGrantToken()
   }
 
@@ -45,6 +45,7 @@ class HmppsAuthMockServer : MockServer(WIREMOCK_PORT, "/auth") {
         .willReturn(
           aResponse()
             .withHeaders(HttpHeaders(HttpHeader("Content-Type", "application/json")))
+            .withHeader("Connection", "close")
             .withBody(
               """
                 {
