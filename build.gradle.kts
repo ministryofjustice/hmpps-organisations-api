@@ -19,7 +19,7 @@ configurations {
 
 dependencies {
   // Spring boot dependencies
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:2.3.0")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:2.4.0")
   implementation("org.springframework.boot:spring-boot-starter-webclient")
   implementation("org.springframework.boot:spring-boot-starter-webflux")
   implementation("org.springframework.boot:spring-boot-starter-security")
@@ -43,7 +43,7 @@ dependencies {
   implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.28.0")
 
   // Test dependencies
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:2.3.0")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:2.4.0")
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.42") {
     exclude(group = "io.swagger.core.v3")
   }
