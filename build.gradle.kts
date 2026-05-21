@@ -40,7 +40,7 @@ dependencies {
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
   implementation("org.openapitools:jackson-databind-nullable:0.2.10")
 
-  implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.28.0")
+  implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.28.1")
 
   // Test dependencies
   testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:2.4.0")
