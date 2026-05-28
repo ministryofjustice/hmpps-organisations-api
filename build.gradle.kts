@@ -26,7 +26,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-flyway")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.3.2")
-  implementation("io.sentry:sentry-spring-boot-4-starter:8.42.0")
+  implementation("io.sentry:sentry-spring-boot-4-starter:8.43.0")
   implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
   implementation("org.springframework.boot:spring-boot-starter-validation")
 
@@ -44,7 +44,7 @@ dependencies {
 
   // Test dependencies
   testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:2.5.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.42") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.43") {
     exclude(group = "io.swagger.core.v3")
   }
   testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
@@ -60,7 +60,7 @@ dependencies {
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("org.testcontainers:testcontainers-postgresql:2.0.5")
   testImplementation("org.wiremock:wiremock-standalone:3.13.2")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.42") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.43") {
     exclude(group = "io.swagger.core.v3")
   }
 }
