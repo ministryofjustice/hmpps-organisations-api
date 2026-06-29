@@ -26,7 +26,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-flyway")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.4.0")
-  implementation("io.sentry:sentry-spring-boot-4-starter:8.45.0")
+  implementation("io.sentry:sentry-spring-boot-4-starter:8.46.0")
   implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
   implementation("org.springframework.boot:spring-boot-starter-validation")
 
