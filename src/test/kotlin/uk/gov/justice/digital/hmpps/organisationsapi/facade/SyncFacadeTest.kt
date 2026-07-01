@@ -95,6 +95,7 @@ class SyncFacadeTest {
           "source" to Source.NOMIS.name,
           "action" to "created",
           "entity" to "organisation",
+          "username" to request.createdBy,
           "caseload" to request.caseloadId,
         ),
       )
@@ -143,6 +144,7 @@ class SyncFacadeTest {
           "source" to Source.NOMIS.name,
           "action" to "updated",
           "entity" to "organisation",
+          "username" to request.updatedBy,
           "caseload" to request.caseloadId,
         ),
       )
@@ -190,6 +192,7 @@ class SyncFacadeTest {
           "source" to Source.NOMIS.name,
           "action" to "deleted",
           "entity" to "organisation",
+          "username" to (result.updatedBy ?: result.createdBy),
           "caseload" to result.caseloadId,
         ),
       )

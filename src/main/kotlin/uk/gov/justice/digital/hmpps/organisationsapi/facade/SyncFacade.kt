@@ -79,6 +79,7 @@ class SyncFacade(
           organisationId = it.organisationId,
           source = Source.NOMIS,
           action = "created",
+          username = request.createdBy,
           caseloadId = request.caseloadId,
         ),
       )
@@ -99,6 +100,7 @@ class SyncFacade(
           organisationId = organisationId,
           source = Source.NOMIS,
           action = "updated",
+          username = request.updatedBy,
           caseloadId = request.caseloadId,
         ),
       )
@@ -119,6 +121,7 @@ class SyncFacade(
           organisationId = it.organisationId,
           source = Source.NOMIS,
           action = "deleted",
+          username = it.updatedBy ?: it.createdBy,
           caseloadId = it.caseloadId,
         ),
       )
@@ -130,12 +133,14 @@ class SyncFacade(
     organisationId: Long,
     source: Source,
     action: String,
+    username: String?,
     caseloadId: String?,
   ) = mapOf(
     "organisationId" to organisationId.toString(),
     "source" to source.name,
     "action" to action,
     "entity" to "organisation",
+    "username" to username,
     "caseload" to caseloadId,
   )
 
