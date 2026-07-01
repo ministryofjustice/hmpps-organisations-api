@@ -40,6 +40,8 @@ import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncOrganisati
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncPhoneService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncTypesService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncWebService
+import uk.gov.justice.digital.hmpps.organisationsapi.service.telemetry.TelemetryCustomEventType
+import uk.gov.justice.digital.hmpps.organisationsapi.service.telemetry.TelemetryService
 import java.time.LocalDateTime
 
 class SyncFacadeTest {
@@ -51,6 +53,7 @@ class SyncFacadeTest {
   private val syncAddressPhoneService: SyncAddressPhoneService = mock()
   private val syncTypesService: SyncTypesService = mock()
   private val outboundEventsService: OutboundEventsService = mock()
+  private val telemetryService: TelemetryService = mock()
 
   private val facade = SyncFacade(
     syncOrganisationService,
@@ -61,6 +64,7 @@ class SyncFacadeTest {
     syncAddressPhoneService,
     syncTypesService,
     outboundEventsService,
+    telemetryService,
   )
 
   @Nested
@@ -84,6 +88,17 @@ class SyncFacadeTest {
         organisationId = result.organisationId,
         source = Source.NOMIS,
       )
+      verify(telemetryService).trackEvent(
+        eventType = TelemetryCustomEventType.ORGANISATION_CREATED,
+        properties = mapOf(
+          "organisationId" to request.organisationId.toString(),
+          "source" to Source.NOMIS.name,
+          "action" to "created",
+          "entity" to "organisation",
+          "username" to request.createdBy,
+          "caseload" to request.caseloadId,
+        ),
+      )
     }
 
     @Test
@@ -102,6 +117,7 @@ class SyncFacadeTest {
 
       verify(syncOrganisationService).createOrganisation(request)
       verify(outboundEventsService, never()).send(any(), any(), any(), any())
+      verify(telemetryService, never()).trackEvent(any(), any(), any())
     }
 
     @Test
@@ -121,6 +137,17 @@ class SyncFacadeTest {
         organisationId = result.organisationId,
         source = Source.NOMIS,
       )
+      verify(telemetryService).trackEvent(
+        eventType = TelemetryCustomEventType.ORGANISATION_UPDATED,
+        properties = mapOf(
+          "organisationId" to request.organisationId.toString(),
+          "source" to Source.NOMIS.name,
+          "action" to "updated",
+          "entity" to "organisation",
+          "username" to request.updatedBy,
+          "caseload" to request.caseloadId,
+        ),
+      )
     }
 
     @Test
@@ -139,6 +166,7 @@ class SyncFacadeTest {
 
       verify(syncOrganisationService).updateOrganisation(4L, request)
       verify(outboundEventsService, never()).send(any(), any(), any(), any())
+      verify(telemetryService, never()).trackEvent(any(), any(), any())
     }
 
     @Test
@@ -157,6 +185,17 @@ class SyncFacadeTest {
         organisationId = result.organisationId,
         source = Source.NOMIS,
       )
+      verify(telemetryService).trackEvent(
+        eventType = TelemetryCustomEventType.ORGANISATION_DELETED,
+        properties = mapOf(
+          "organisationId" to result.organisationId.toString(),
+          "source" to Source.NOMIS.name,
+          "action" to "deleted",
+          "entity" to "organisation",
+          "username" to (result.updatedBy ?: result.createdBy),
+          "caseload" to result.caseloadId,
+        ),
+      )
     }
 
     @Test
@@ -173,6 +212,7 @@ class SyncFacadeTest {
       assertThat(exception.message).isEqualTo(expectedException.message)
       verify(syncOrganisationService).deleteOrganisation(6L)
       verify(outboundEventsService, never()).send(any(), any(), any(), any())
+      verify(telemetryService, never()).trackEvent(any(), any(), any())
     }
 
     private fun syncCreateOrganisationRequest(organisationId: Long) = SyncCreateOrganisationRequest(

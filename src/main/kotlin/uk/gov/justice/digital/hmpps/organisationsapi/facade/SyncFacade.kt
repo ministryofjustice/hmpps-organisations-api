@@ -25,6 +25,8 @@ import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncOrganisati
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncPhoneService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncTypesService
 import uk.gov.justice.digital.hmpps.organisationsapi.service.sync.SyncWebService
+import uk.gov.justice.digital.hmpps.organisationsapi.service.telemetry.TelemetryCustomEventType
+import uk.gov.justice.digital.hmpps.organisationsapi.service.telemetry.TelemetryService
 
 /**
  * This class is a facade over the sync services as a thin layer
@@ -54,6 +56,7 @@ class SyncFacade(
   private val syncAddressPhoneService: SyncAddressPhoneService,
   private val syncTypesService: SyncTypesService,
   private val outboundEventsService: OutboundEventsService,
+  private val telemetryService: TelemetryService,
 ) {
   // ================================================================
   //  Organisations
@@ -69,6 +72,17 @@ class SyncFacade(
         identifier = it.organisationId,
         source = Source.NOMIS,
       )
+
+      telemetryService.trackEvent(
+        eventType = TelemetryCustomEventType.ORGANISATION_CREATED,
+        properties = syncOrganisationTelemetryProperties(
+          organisationId = it.organisationId,
+          source = Source.NOMIS,
+          action = "created",
+          username = request.createdBy,
+          caseloadId = request.caseloadId,
+        ),
+      )
     }
 
   fun updateOrganisation(organisationId: Long, request: SyncUpdateOrganisationRequest) = syncOrganisationService.updateOrganisation(organisationId, request)
@@ -78,6 +92,17 @@ class SyncFacade(
         organisationId = organisationId,
         identifier = organisationId,
         source = Source.NOMIS,
+      )
+
+      telemetryService.trackEvent(
+        eventType = TelemetryCustomEventType.ORGANISATION_UPDATED,
+        properties = syncOrganisationTelemetryProperties(
+          organisationId = organisationId,
+          source = Source.NOMIS,
+          action = "updated",
+          username = request.updatedBy,
+          caseloadId = request.caseloadId,
+        ),
       )
     }
 
@@ -89,9 +114,35 @@ class SyncFacade(
         identifier = organisationId,
         source = Source.NOMIS,
       )
+
+      telemetryService.trackEvent(
+        eventType = TelemetryCustomEventType.ORGANISATION_DELETED,
+        properties = syncOrganisationTelemetryProperties(
+          organisationId = it.organisationId,
+          source = Source.NOMIS,
+          action = "deleted",
+          username = it.updatedBy ?: it.createdBy,
+          caseloadId = it.caseloadId,
+        ),
+      )
     }
 
   fun getIds(pageable: Pageable) = syncOrganisationService.getOrganisationIds(pageable)
+
+  private fun syncOrganisationTelemetryProperties(
+    organisationId: Long,
+    source: Source,
+    action: String,
+    username: String?,
+    caseloadId: String?,
+  ) = mapOf(
+    "organisationId" to organisationId.toString(),
+    "source" to source.name,
+    "action" to action,
+    "entity" to "organisation",
+    "username" to username,
+    "caseload" to caseloadId,
+  )
 
   // ================================================================
   //  Organisation phone numbers
