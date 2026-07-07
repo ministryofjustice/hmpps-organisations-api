@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.5.4"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.5.6"
   id("org.openapi.generator") version "7.23.0"
   kotlin("plugin.spring") version "2.4.0"
   kotlin("plugin.jpa") version "2.4.0"
@@ -32,7 +32,7 @@ dependencies {
 
   // Database dependencies
   runtimeOnly("org.flywaydb:flyway-database-postgresql")
-  runtimeOnly("org.postgresql:postgresql:42.7.12")
+  runtimeOnly("org.postgresql:postgresql:42.7.13")
   implementation("org.hibernate.orm:hibernate-envers")
   implementation("org.springframework.data:spring-data-envers")
 
@@ -49,9 +49,9 @@ dependencies {
   }
   testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
-  testImplementation("net.javacrumbs.json-unit:json-unit:5.1.2")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:5.1.2")
-  testImplementation("net.javacrumbs.json-unit:json-unit-json-path:5.1.2")
+  testImplementation("net.javacrumbs.json-unit:json-unit:6.0.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:6.0.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-json-path:6.0.0")
   testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
   testImplementation("org.mockito:mockito-inline:5.2.0")
   testImplementation("org.springframework.boot:spring-boot-starter-webclient-test")
