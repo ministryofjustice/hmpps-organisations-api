@@ -26,7 +26,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-flyway")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.4.0")
-  implementation("io.sentry:sentry-spring-boot-4-starter:8.49.0")
+  implementation("io.sentry:sentry-spring-boot-4-starter:8.50.1")
   implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
   implementation("org.springframework.boot:spring-boot-starter-validation")
 
@@ -38,9 +38,9 @@ dependencies {
 
   // OpenAPI
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3")
-  implementation("org.openapitools:jackson-databind-nullable:0.2.10")
+  implementation("org.openapitools:jackson-databind-nullable:0.2.11")
 
-  implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.29.0")
+  implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.30.0")
 
   // Test dependencies
   testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:3.0.0")
@@ -49,9 +49,9 @@ dependencies {
   }
   testImplementation("io.jsonwebtoken:jjwt-impl:0.13.0")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.13.0")
-  testImplementation("net.javacrumbs.json-unit:json-unit:5.1.2")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:5.1.2")
-  testImplementation("net.javacrumbs.json-unit:json-unit-json-path:5.1.2")
+  testImplementation("net.javacrumbs.json-unit:json-unit:6.0.1")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:6.0.1")
+  testImplementation("net.javacrumbs.json-unit:json-unit-json-path:6.0.1")
   testImplementation("org.awaitility:awaitility-kotlin:4.3.0")
   testImplementation("org.mockito:mockito-inline:5.2.0")
   testImplementation("org.springframework.boot:spring-boot-starter-webclient-test")
