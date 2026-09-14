@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.7"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.8"
   id("org.openapi.generator") version "7.25.0"
-  kotlin("plugin.spring") version "2.4.10"
-  kotlin("plugin.jpa") version "2.4.10"
+  kotlin("plugin.spring") version "2.4.20"
+  kotlin("plugin.jpa") version "2.4.20"
 }
 
 allOpen {
@@ -26,7 +26,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-flyway")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("uk.gov.justice.service.hmpps:hmpps-sqs-spring-boot-starter:7.4.1")
-  implementation("io.sentry:sentry-spring-boot-4-starter:8.55.0")
+  implementation("io.sentry:sentry-spring-boot-4-starter:8.56.0")
   implementation("io.github.cdimascio:dotenv-kotlin:6.5.1")
   implementation("org.springframework.boot:spring-boot-starter-validation")
 
@@ -37,7 +37,7 @@ dependencies {
   implementation("org.springframework.data:spring-data-envers")
 
   // OpenAPI
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.1")
   implementation("org.openapitools:jackson-databind-nullable:0.2.11")
 
   implementation("io.opentelemetry.instrumentation:opentelemetry-instrumentation-annotations:2.31.1")
