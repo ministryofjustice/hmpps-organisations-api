@@ -48,17 +48,25 @@ N.B. you must escape any '$' characters with '\\$'
 | DPR_USER               | <>                                                                                                  | dpr_user         |
 | DPR_PASSWORD           | <>                                                                                                  | dpr_password     |
 
-Start up the docker dependencies using the docker-compose file in the `hmpps-organisations-api` service. It will start
-on the port set in your .env LOCAL_DB_PORT.
+To build and start Postgres and the API together with Docker Compose, run this from the repository root:
 
 ```
-docker compose up -d
+docker compose up --build -d
 ```
 
-if you'd prefer to run the service with default values, you can create the .env file with the 2 variables needed (system_client_id and system_client_secret) and then use the 
-run-local script:
+Postgres is available on `localhost:${LOCAL_DB_PORT:-5432}` and the API on
+<http://localhost:8080>. The API container waits for the database health check before starting.
+When the `local` profile is active, the API grants local developer roles to requests without requiring
+a bearer token. This bypass is only for local development; do not activate the `local` profile outside
+your machine. For calls that require outbound service-to-service authentication, set `SYSTEM_CLIENT_ID`
+and `SYSTEM_CLIENT_SECRET` in `.env` to valid credentials; local placeholder values are used otherwise.
+Prison names are not looked up from Prison Register locally, so `caseloadPrisonName` is null in local responses.
+To stop both services, run `docker compose down`.
+
+Alternatively, start only Postgres with Docker Compose and run the API directly on your machine using:
 
 ```
+docker compose up -d db
 ./run-local.sh
 ```
 
