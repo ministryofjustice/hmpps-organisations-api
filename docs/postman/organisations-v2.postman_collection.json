@@ -1,0 +1,53 @@
+{
+  "info": {
+    "name": "Organisations API v2 (local)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "organisationId", "value": "20000000" }
+  ],
+  "item": [
+    {
+      "name": "POST create organisation v2",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": ["pm.collectionVariables.set('organisationId', pm.response.json().organisationId);"]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/organisation/v2",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"organisationName\": \"Postman Test Ltd\",\n  \"programmeNumber\": \"FEI-12345\",\n  \"vatNumber\": \"GB123456789\",\n  \"caseloadId\": null,\n  \"comments\": \"Created from Postman\",\n  \"organisationTypes\": [\"OTH\"],\n  \"active\": true,\n  \"deactivatedDate\": null,\n  \"phoneNumbers\": [\n    { \"phoneType\": \"BUS\", \"phoneNumber\": \"01632 960123\", \"extNumber\": null }\n  ],\n  \"internetAddresses\": [\n    { \"type\": \"EMAIL\", \"address\": \"contact@example.org\" },\n    { \"type\": \"WEB\", \"address\": \"https://www.example.org\" }\n  ],\n  \"addresses\": [\n    {\n      \"noFixedAddress\": false,\n      \"flat\": \"Flat 1\",\n      \"property\": \"Example House\",\n      \"street\": \"Example Street\",\n      \"area\": \"Example Locality\",\n      \"cityCode\": \"25343\",\n      \"countyCode\": \"MANCHESTER\",\n      \"postCode\": \"A3 6TO\",\n      \"countryCode\": \"ENG\",\n      \"startDate\": \"2016-04-01\",\n      \"endDate\": null,\n      \"comments\": \"Main office\",\n      \"addressType\": \"BUS\",\n      \"serviceAddress\": true,\n      \"specialNeedsCode\": null,\n      \"primaryAddress\": true,\n      \"mailAddress\": true,\n      \"contactPersonName\": \"Example Contact\",\n      \"businessHours\": \"Weekdays 9-5\",\n      \"phoneNumbers\": [\n        { \"phoneType\": \"BUS\", \"phoneNumber\": \"01632 960124\", \"extNumber\": \"42\" }\n      ]\n    }\n  ],\n  \"createdBy\": \"postman\",\n  \"createdTime\": \"2026-10-09T12:00:00\",\n  \"updatedBy\": null,\n  \"updatedTime\": null\n}"
+        }
+      }
+    },
+    {
+      "name": "PUT replace organisation v2",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": "{{baseUrl}}/organisation/v2/{{organisationId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"organisationName\": \"Postman Test Ltd (renamed)\",\n  \"programmeNumber\": \"FEI-99999\",\n  \"vatNumber\": null,\n  \"caseloadId\": null,\n  \"comments\": \"Updated from Postman\",\n  \"organisationTypes\": [\"OTH\"],\n  \"active\": true,\n  \"deactivatedDate\": null,\n  \"phoneNumbers\": [\n    { \"phoneType\": \"BUS\", \"phoneNumber\": \"01632 960999\", \"extNumber\": \"7\" }\n  ],\n  \"internetAddresses\": [\n    { \"type\": \"EMAIL\", \"address\": \"new@example.org\" }\n  ],\n  \"addresses\": [\n    {\n      \"noFixedAddress\": false,\n      \"flat\": null,\n      \"property\": \"New House\",\n      \"street\": \"New Street\",\n      \"area\": null,\n      \"cityCode\": \"25343\",\n      \"countyCode\": \"MANCHESTER\",\n      \"postCode\": \"A3 6TO\",\n      \"countryCode\": \"ENG\",\n      \"startDate\": \"2016-04-01\",\n      \"endDate\": null,\n      \"comments\": null,\n      \"addressType\": \"BUS\",\n      \"serviceAddress\": false,\n      \"specialNeedsCode\": null,\n      \"primaryAddress\": true,\n      \"mailAddress\": false,\n      \"contactPersonName\": null,\n      \"businessHours\": null,\n      \"phoneNumbers\": []\n    }\n  ],\n  \"createdBy\": \"postman\",\n  \"createdTime\": \"2026-10-09T12:00:00\",\n  \"updatedBy\": \"postman-editor\",\n  \"updatedTime\": \"2026-10-09T13:00:00\"\n}"
+        }
+      }
+    },
+    {
+      "name": "GET organisation (full detail)",
+      "request": { "method": "GET", "url": "{{baseUrl}}/organisation/{{organisationId}}" }
+    },
+    {
+      "name": "GET organisation summary",
+      "request": { "method": "GET", "url": "{{baseUrl}}/organisation/{{organisationId}}/summary" }
+    }
+  ]
+}
