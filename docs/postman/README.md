@@ -7,6 +7,8 @@
 1. `docker compose up -d`
 2. `./run-local.sh`
 
+If you run the API through docker compose, rebuild the image after code changes (`docker compose up -d --build api`); a stale image answers `Request method 'POST' is not supported` for `/organisation/v2`.
+
 The API listens on `http://localhost:8080`. With the `local` profile active no bearer token is needed (see `LocalSecurityConfiguration`). Never use that profile outside local development.
 
 ## Requests

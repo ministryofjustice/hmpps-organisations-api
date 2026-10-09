@@ -15,7 +15,7 @@
           "listen": "test",
           "script": {
             "type": "text/javascript",
-            "exec": ["pm.collectionVariables.set('organisationId', pm.response.json().organisationId);"]
+            "exec": ["if (pm.response.code === 201) { pm.collectionVariables.set('organisationId', pm.response.json().organisationId); }"]
           }
         }
       ],
