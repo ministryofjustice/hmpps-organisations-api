@@ -239,6 +239,69 @@ class CreateOrganisationIntegrationTest : SecureApiIntegrationTestBase() {
   }
 
   @Test
+  fun `should replace organisation and children on v2 put`() {
+    val request = createValidV2OrganisationRequest()
+    val created = webTestClient.post()
+      .uri("/organisation/v2")
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS__RW")))
+      .bodyValue(request)
+      .exchange()
+      .expectStatus()
+      .isCreated
+      .expectBody(OrganisationV2Details::class.java)
+      .returnResult()
+      .responseBody!!
+
+    val updateRequest = request.copy(
+      organisationName = "Renamed Organisation",
+      addresses = emptyList(),
+      internetAddresses = emptyList(),
+      updatedBy = "editor",
+      updatedTime = LocalDateTime.now(),
+    )
+    webTestClient.put()
+      .uri("/organisation/v2/${created.organisationId}")
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS__RW")))
+      .bodyValue(updateRequest)
+      .exchange()
+      .expectStatus()
+      .isOk
+
+    assertThat(
+      jdbcTemplate.queryForObject(
+        "select organisation_name from organisation where organisation_id = ?",
+        String::class.java,
+        created.organisationId,
+      ),
+    ).isEqualTo("Renamed Organisation")
+    assertThat(
+      jdbcTemplate.queryForObject(
+        "select count(*) from organisation_address where organisation_id = ?",
+        Int::class.java,
+        created.organisationId,
+      ),
+    ).isEqualTo(0)
+    assertThat(
+      jdbcTemplate.queryForObject(
+        "select count(*) from organisation_phone where organisation_id = ?",
+        Int::class.java,
+        created.organisationId,
+      ),
+    ).isEqualTo(1)
+  }
+
+  @Test
+  fun `should return not found on v2 put for unknown organisation`() {
+    webTestClient.put()
+      .uri("/organisation/v2/999999999")
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS__RW")))
+      .bodyValue(createValidV2OrganisationRequest())
+      .exchange()
+      .expectStatus()
+      .isNotFound
+  }
+
+  @Test
   fun `should reject v2 request with invalid reference code`() {
     webTestClient.post()
       .uri("/organisation/v2")

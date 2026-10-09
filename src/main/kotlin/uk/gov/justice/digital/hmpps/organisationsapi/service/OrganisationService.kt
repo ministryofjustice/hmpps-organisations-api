@@ -171,7 +171,43 @@ class OrganisationService(
       ),
     )
     val organisationId = requireNotNull(organisation.organisationId)
+    saveV2Children(organisationId, request)
 
+    return OrganisationV2Details.from(organisationId, request)
+  }
+
+  @Transactional
+  fun updateV2(organisationId: Long, request: OrganisationV2CreateRequest): OrganisationV2Details {
+    val existing = organisationRepository.findById(organisationId)
+      .orElseThrow { EntityNotFoundException("Organisation with id $organisationId not found") }
+    validateV2ReferenceCodes(request)
+
+    organisationAddressPhoneRepository.deleteAllByOrganisationId(organisationId)
+    organisationAddressEntityRepository.deleteAllByOrganisationId(organisationId)
+    organisationPhoneRepository.deleteAllByOrganisationId(organisationId)
+    organisationEmailRepository.deleteAllByOrganisationId(organisationId)
+    organisationWebAddressRepository.deleteAllByOrganisationId(organisationId)
+    organisationTypeRepository.deleteAllByOrganisationId(organisationId)
+
+    organisationRepository.saveAndFlush(
+      existing.copy(
+        organisationName = request.organisationName,
+        programmeNumber = request.programmeNumber,
+        vatNumber = request.vatNumber,
+        caseloadId = request.caseloadId,
+        comments = request.comments,
+        active = request.active,
+        deactivatedDate = request.deactivatedDate,
+        updatedBy = request.updatedBy ?: request.createdBy,
+        updatedTime = request.updatedTime ?: request.createdTime,
+      ),
+    )
+    saveV2Children(organisationId, request)
+
+    return OrganisationV2Details.from(organisationId, request)
+  }
+
+  private fun saveV2Children(organisationId: Long, request: OrganisationV2CreateRequest) {
     request.organisationTypes.forEach { type ->
       organisationTypeRepository.saveAndFlush(
         OrganisationTypeEntity(
@@ -270,8 +306,6 @@ class OrganisationService(
         )
       }
     }
-
-    return OrganisationV2Details.from(organisationId, request)
   }
 
   private fun validateV2ReferenceCodes(request: OrganisationV2CreateRequest) {

@@ -34,6 +34,14 @@ class OrganisationFacade(
     )
   }
 
+  fun updateV2(organisationId: Long, request: OrganisationV2CreateRequest): OrganisationV2Details = organisationService.updateV2(organisationId, request).also {
+    outboundEventsService.send(
+      outboundEvent = OutboundEvent.ORGANISATION_UPDATED,
+      organisationId = it.organisationId,
+      identifier = it.organisationId,
+    )
+  }
+
   fun getOrganisationById(organisationId: Long): OrganisationDetails = organisationService.getOrganisationById(organisationId)
 
   fun getOrganisationSummaryById(organisationId: Long): OrganisationSummary = organisationService.getOrganisationSummaryById(organisationId)
