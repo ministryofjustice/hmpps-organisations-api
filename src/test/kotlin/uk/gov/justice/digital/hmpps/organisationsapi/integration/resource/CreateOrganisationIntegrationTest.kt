@@ -2,15 +2,26 @@ package uk.gov.justice.digital.hmpps.organisationsapi.integration.resource
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.web.reactive.server.WebTestClient
 import uk.gov.justice.digital.hmpps.organisationsapi.integration.SecureApiIntegrationTestBase
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.CreateOrganisationRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.OrganisationV2AddressRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.OrganisationV2CreateRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.OrganisationV2InternetAddressRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.OrganisationV2PhoneRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.OrganisationDetails
+import uk.gov.justice.digital.hmpps.organisationsapi.model.response.OrganisationV2Details
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 class CreateOrganisationIntegrationTest : SecureApiIntegrationTestBase() {
+
+  @Autowired
+  private lateinit var jdbcTemplate: JdbcTemplate
 
   override val allowedRoles: Set<String> = setOf("ROLE_ORGANISATIONS__RW")
 
@@ -167,7 +178,153 @@ class CreateOrganisationIntegrationTest : SecureApiIntegrationTestBase() {
     }
   }
 
+  @Test
+  fun `should create organisation with all v2 details and persist them`() {
+    val request = createValidV2OrganisationRequest()
+
+    val response = webTestClient.post()
+      .uri("/organisation/v2")
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS__RW")))
+      .bodyValue(request)
+      .exchange()
+      .expectStatus()
+      .isCreated
+      .expectBody(OrganisationV2Details::class.java)
+      .returnResult()
+      .responseBody!!
+
+    assertThat(response).isEqualTo(OrganisationV2Details.from(response.organisationId, request))
+    assertThat(
+      jdbcTemplate.queryForObject(
+        "select count(*) from organisation_type where organisation_id = ?",
+        Int::class.java,
+        response.organisationId,
+      ),
+    ).isEqualTo(1)
+    assertThat(
+      jdbcTemplate.queryForObject(
+        "select count(*) from organisation_phone where organisation_id = ?",
+        Int::class.java,
+        response.organisationId,
+      ),
+    ).isEqualTo(2)
+    assertThat(
+      jdbcTemplate.queryForObject(
+        "select count(*) from organisation_email where organisation_id = ?",
+        Int::class.java,
+        response.organisationId,
+      ),
+    ).isEqualTo(1)
+    assertThat(
+      jdbcTemplate.queryForObject(
+        "select count(*) from organisation_web_address where organisation_id = ?",
+        Int::class.java,
+        response.organisationId,
+      ),
+    ).isEqualTo(1)
+    assertThat(
+      jdbcTemplate.queryForObject(
+        "select count(*) from organisation_address where organisation_id = ? and active = true",
+        Int::class.java,
+        response.organisationId,
+      ),
+    ).isEqualTo(1)
+    assertThat(
+      jdbcTemplate.queryForObject(
+        "select count(*) from organisation_address_phone where organisation_id = ?",
+        Int::class.java,
+        response.organisationId,
+      ),
+    ).isEqualTo(1)
+  }
+
+  @Test
+  fun `should reject v2 request with invalid reference code`() {
+    webTestClient.post()
+      .uri("/organisation/v2")
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS__RW")))
+      .bodyValue(createValidV2OrganisationRequest().copy(organisationTypes = listOf("NOPE")))
+      .exchange()
+      .expectStatus()
+      .isBadRequest
+  }
+
+  @Test
+  fun `should reject v2 request with two primary addresses`() {
+    val request = createValidV2OrganisationRequest()
+    webTestClient.post()
+      .uri("/organisation/v2")
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS__RW")))
+      .bodyValue(request.copy(addresses = request.addresses + request.addresses))
+      .exchange()
+      .expectStatus()
+      .isBadRequest
+  }
+
+  @Test
+  fun `should reject v2 request with blank name or end date before start date`() {
+    val request = createValidV2OrganisationRequest()
+    listOf(
+      request.copy(organisationName = " "),
+      request.copy(addresses = listOf(request.addresses[0].copy(endDate = LocalDate.of(2015, 1, 1)))),
+    ).forEach {
+      webTestClient.post()
+        .uri("/organisation/v2")
+        .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS__RW")))
+        .bodyValue(it)
+        .exchange()
+        .expectStatus()
+        .isBadRequest
+    }
+  }
+
   companion object {
+    private fun createValidV2OrganisationRequest() = OrganisationV2CreateRequest(
+      organisationName = "V2 Test Organisation",
+      programmeNumber = "FEI-12345",
+      vatNumber = "GB123456789",
+      caseloadId = null,
+      comments = "Legacy comments",
+      organisationTypes = listOf("OTH"),
+      active = true,
+      deactivatedDate = null,
+      phoneNumbers = listOf(
+        OrganisationV2PhoneRequest("BUS", "01632 960123", null),
+      ),
+      internetAddresses = listOf(
+        OrganisationV2InternetAddressRequest("EMAIL", "contact@example.org"),
+        OrganisationV2InternetAddressRequest("WEB", "https://www.example.org"),
+      ),
+      addresses = listOf(
+        OrganisationV2AddressRequest(
+          noFixedAddress = false,
+          flat = "Flat 1",
+          property = "Example House",
+          street = "Example Street",
+          area = "Example Locality",
+          cityCode = "25343",
+          countyCode = "MANCHESTER",
+          postCode = "A3 6TO",
+          countryCode = "ENG",
+          startDate = LocalDate.of(2016, 4, 1),
+          endDate = null,
+          comments = "Address comments",
+          addressType = "BUS",
+          serviceAddress = true,
+          specialNeedsCode = null,
+          primaryAddress = true,
+          mailAddress = true,
+          contactPersonName = "Example Contact",
+          businessHours = "Weekdays 9-5",
+          phoneNumbers = listOf(OrganisationV2PhoneRequest("BUS", "01632 960124", "42")),
+        ),
+      ),
+      createdBy = "test-user",
+      createdTime = LocalDateTime.now(),
+      updatedBy = null,
+      updatedTime = null,
+    )
+
     fun createValidOrganisationRequest() = CreateOrganisationRequest(
       organisationName = "Test Organisation",
       programmeNumber = "TEST01",

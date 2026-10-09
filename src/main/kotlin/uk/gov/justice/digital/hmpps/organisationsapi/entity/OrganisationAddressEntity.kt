@@ -56,6 +56,8 @@ data class OrganisationAddressEntity(
 
   val endDate: LocalDate? = null,
 
+  val active: Boolean = true,
+
   @Column(updatable = false)
   val createdBy: String,
 

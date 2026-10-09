@@ -22,12 +22,15 @@ import uk.gov.justice.digital.hmpps.organisationsapi.model.request.OrganisationS
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.OrganisationSummary
 import uk.gov.justice.digital.hmpps.organisationsapi.repository.OrganisationAddressDetailsRepository
 import uk.gov.justice.digital.hmpps.organisationsapi.repository.OrganisationAddressPhoneRepository
+import uk.gov.justice.digital.hmpps.organisationsapi.repository.OrganisationAddressRepository
 import uk.gov.justice.digital.hmpps.organisationsapi.repository.OrganisationEmailRepository
 import uk.gov.justice.digital.hmpps.organisationsapi.repository.OrganisationPhoneDetailsRepository
+import uk.gov.justice.digital.hmpps.organisationsapi.repository.OrganisationPhoneRepository
 import uk.gov.justice.digital.hmpps.organisationsapi.repository.OrganisationRepository
 import uk.gov.justice.digital.hmpps.organisationsapi.repository.OrganisationSearchRepository
 import uk.gov.justice.digital.hmpps.organisationsapi.repository.OrganisationSummaryRepository
 import uk.gov.justice.digital.hmpps.organisationsapi.repository.OrganisationTypeDetailsRepository
+import uk.gov.justice.digital.hmpps.organisationsapi.repository.OrganisationTypeRepository
 import uk.gov.justice.digital.hmpps.organisationsapi.repository.OrganisationWebAddressRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -44,6 +47,10 @@ class OrganisationServiceTest {
   private val organisationAddressRepository: OrganisationAddressDetailsRepository = mock()
   private val organisationSummaryRepository: OrganisationSummaryRepository = mock()
   private val prisonRegisterClient: PrisonRegisterClient = mock()
+  private val organisationTypeRepository: OrganisationTypeRepository = mock()
+  private val organisationPhoneRepository: OrganisationPhoneRepository = mock()
+  private val organisationAddressEntityRepository: OrganisationAddressRepository = mock()
+  private val referenceCodeService: ReferenceCodeService = mock()
 
   private val organisationService: OrganisationService = OrganisationService(
     organisationRepository,
@@ -56,6 +63,10 @@ class OrganisationServiceTest {
     organisationAddressRepository,
     organisationSummaryRepository,
     prisonRegisterClient,
+    organisationTypeRepository,
+    organisationPhoneRepository,
+    organisationAddressEntityRepository,
+    referenceCodeService,
   )
 
   @Nested
