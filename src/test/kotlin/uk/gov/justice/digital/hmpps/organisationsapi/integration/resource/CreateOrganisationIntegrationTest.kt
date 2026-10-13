@@ -302,6 +302,78 @@ class CreateOrganisationIntegrationTest : SecureApiIntegrationTestBase() {
   }
 
   @Test
+  fun `should get a v2 organisation with all its details`() {
+    val request = createValidV2OrganisationRequest()
+    val created = createV2(request)
+
+    val found = webTestClient.get()
+      .uri("/organisation/v2/${created.organisationId}")
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS__R")))
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectBody(OrganisationV2Details::class.java)
+      .returnResult()
+      .responseBody!!
+
+    assertThat(found.organisationId).isEqualTo(created.organisationId)
+    assertThat(found.organisationName).isEqualTo(request.organisationName)
+    assertThat(found.organisationTypes).containsExactlyInAnyOrderElementsOf(request.organisationTypes)
+    assertThat(found.phoneNumbers).containsExactlyInAnyOrderElementsOf(request.phoneNumbers)
+    assertThat(found.internetAddresses).containsExactlyInAnyOrderElementsOf(request.internetAddresses)
+    assertThat(found.addresses).hasSize(request.addresses.size)
+    assertThat(found.addresses[0].phoneNumbers).containsExactlyInAnyOrderElementsOf(request.addresses[0].phoneNumbers)
+  }
+
+  @Test
+  fun `should return not found on v2 get and delete for unknown organisation`() {
+    webTestClient.get().uri("/organisation/v2/999999999")
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS__R")))
+      .exchange().expectStatus().isNotFound
+    webTestClient.delete().uri("/organisation/v2/999999999")
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS__RW")))
+      .exchange().expectStatus().isNotFound
+  }
+
+  @Test
+  fun `should only allow read-write role to delete a v2 organisation`() {
+    val created = createV2(createValidV2OrganisationRequest())
+
+    webTestClient.delete().uri("/organisation/v2/${created.organisationId}")
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS__R")))
+      .exchange().expectStatus().isForbidden
+  }
+
+  @Test
+  fun `should delete a v2 organisation and all its children`() {
+    val created = createV2(createValidV2OrganisationRequest())
+
+    webTestClient.delete().uri("/organisation/v2/${created.organisationId}")
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS__RW")))
+      .exchange().expectStatus().isNoContent
+
+    webTestClient.get().uri("/organisation/v2/${created.organisationId}")
+      .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS__R")))
+      .exchange().expectStatus().isNotFound
+    listOf("organisation", "organisation_type", "organisation_phone", "organisation_email", "organisation_web_address", "organisation_address").forEach {
+      assertThat(
+        jdbcTemplate.queryForObject("select count(*) from $it where organisation_id = ?", Int::class.java, created.organisationId),
+      ).isEqualTo(0)
+    }
+  }
+
+  private fun createV2(request: OrganisationV2CreateRequest) = webTestClient.post()
+    .uri("/organisation/v2")
+    .headers(setAuthorisation(roles = listOf("ROLE_ORGANISATIONS__RW")))
+    .bodyValue(request)
+    .exchange()
+    .expectStatus()
+    .isCreated
+    .expectBody(OrganisationV2Details::class.java)
+    .returnResult()
+    .responseBody!!
+
+  @Test
   fun `should reject v2 request with invalid reference code`() {
     webTestClient.post()
       .uri("/organisation/v2")

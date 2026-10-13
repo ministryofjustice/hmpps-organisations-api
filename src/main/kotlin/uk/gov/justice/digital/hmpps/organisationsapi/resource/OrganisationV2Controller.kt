@@ -1,6 +1,7 @@
 package uk.gov.justice.digital.hmpps.organisationsapi.resource
 
 import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
@@ -8,7 +9,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import io.swagger.v3.oas.annotations.Parameter
 import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort.Direction
 import org.springframework.data.web.PageableDefault
@@ -17,6 +17,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.organisationsapi.facade.OrganisationFacade
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.OrganisationV2CreateRequest
@@ -89,6 +91,48 @@ class OrganisationV2Controller(private val organisationFacade: OrganisationFacad
     @Valid @RequestBody request: OrganisationV2CreateRequest,
   ): ResponseEntity<OrganisationV2Details> = organisationFacade.createV2(request)
     .let { ResponseEntity.status(HttpStatus.CREATED).body(it) }
+
+  @GetMapping("/{organisationId}")
+  @Operation(
+    summary = "Get an organisation with full details",
+    security = [SecurityRequirement(name = "bearer")],
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(
+        responseCode = "200",
+        description = "Found the organisation",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = OrganisationV2Details::class))],
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "The organisation was not found",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
+      ),
+    ],
+  )
+  @PreAuthorize("hasAnyRole('ROLE_ORGANISATIONS__R', 'ROLE_ORGANISATIONS__RW')")
+  fun getOrganisation(@PathVariable organisationId: Long): OrganisationV2Details = organisationFacade.getV2(organisationId)
+
+  @DeleteMapping("/{organisationId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Operation(
+    summary = "Delete an organisation",
+    description = "Deletes the organisation and all of its types, addresses and contact details.",
+    security = [SecurityRequirement(name = "bearer")],
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(responseCode = "204", description = "Deleted the organisation"),
+      ApiResponse(
+        responseCode = "404",
+        description = "The organisation was not found",
+        content = [Content(schema = Schema(implementation = ErrorResponse::class))],
+      ),
+    ],
+  )
+  @PreAuthorize("hasAnyRole('ROLE_ORGANISATIONS__RW')")
+  fun deleteOrganisation(@PathVariable organisationId: Long) = organisationFacade.deleteV2(organisationId)
 
   @PutMapping("/{organisationId}", consumes = [MediaType.APPLICATION_JSON_VALUE])
   @Operation(

@@ -42,6 +42,17 @@ class OrganisationFacade(
     )
   }
 
+  fun getV2(organisationId: Long): OrganisationV2Details = organisationService.getV2(organisationId)
+
+  fun deleteV2(organisationId: Long) {
+    organisationService.deleteV2(organisationId)
+    outboundEventsService.send(
+      outboundEvent = OutboundEvent.ORGANISATION_DELETED,
+      organisationId = organisationId,
+      identifier = organisationId,
+    )
+  }
+
   fun getOrganisationById(organisationId: Long): OrganisationDetails = organisationService.getOrganisationById(organisationId)
 
   fun getOrganisationSummaryById(organisationId: Long): OrganisationSummary = organisationService.getOrganisationSummaryById(organisationId)

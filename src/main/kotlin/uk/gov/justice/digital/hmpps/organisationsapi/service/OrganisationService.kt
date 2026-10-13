@@ -20,7 +20,10 @@ import uk.gov.justice.digital.hmpps.organisationsapi.mapping.toModel
 import uk.gov.justice.digital.hmpps.organisationsapi.model.ReferenceCodeGroup
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.CreateOrganisationRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.OrganisationSearchRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.OrganisationV2AddressRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.OrganisationV2CreateRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.OrganisationV2InternetAddressRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.request.OrganisationV2PhoneRequest
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.OrganisationAddressDetails
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.OrganisationDetails
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.OrganisationSummary
@@ -176,6 +179,78 @@ class OrganisationService(
     saveV2Children(organisationId, request)
 
     return OrganisationV2Details.from(organisationId, request)
+  }
+
+  fun getV2(organisationId: Long): OrganisationV2Details {
+    val organisation = organisationRepository.findById(organisationId)
+      .orElseThrow { EntityNotFoundException("Organisation with id $organisationId not found") }
+
+    val phones = organisationPhoneRepository.findByOrganisationId(organisationId)
+    val addressPhones = organisationAddressPhoneRepository.findByOrganisationId(organisationId)
+    val addressPhoneIds = addressPhones.map { it.organisationPhoneId }.toSet()
+    fun OrganisationPhoneEntity.toV2() = OrganisationV2PhoneRequest(phoneType = phoneType, phoneNumber = phoneNumber, extNumber = extNumber)
+
+    val emails = organisationEmailRepository.findByOrganisationId(organisationId)
+      .map { OrganisationV2InternetAddressRequest(type = "EMAIL", address = it.emailAddress) }
+    val webs = organisationWebAddressRepository.findByOrganisationId(organisationId)
+      .map { OrganisationV2InternetAddressRequest(type = "WEB", address = it.webAddress) }
+
+    return OrganisationV2Details(
+      organisationId = organisationId,
+      organisationName = organisation.organisationName,
+      programmeNumber = organisation.programmeNumber,
+      vatNumber = organisation.vatNumber,
+      caseloadId = organisation.caseloadId,
+      comments = organisation.comments,
+      organisationTypes = organisationTypeRepository.getByIdOrganisationId(organisationId).map { it.id.organisationType },
+      active = organisation.active,
+      deactivatedDate = organisation.deactivatedDate,
+      phoneNumbers = phones.filter { it.organisationPhoneId !in addressPhoneIds }.map { it.toV2() },
+      internetAddresses = emails + webs,
+      addresses = organisationAddressEntityRepository.findByOrganisationId(organisationId).map { address ->
+        OrganisationV2AddressRequest(
+          noFixedAddress = address.noFixedAddress,
+          flat = address.flat,
+          property = address.property,
+          street = address.street,
+          area = address.area,
+          cityCode = address.cityCode,
+          countyCode = address.countyCode,
+          postCode = address.postCode,
+          countryCode = address.countryCode,
+          startDate = address.startDate,
+          endDate = address.endDate,
+          comments = address.comments,
+          addressType = address.addressType,
+          serviceAddress = address.serviceAddress,
+          specialNeedsCode = address.specialNeedsCode,
+          primaryAddress = address.primaryAddress,
+          mailAddress = address.mailAddress,
+          contactPersonName = address.contactPersonName,
+          businessHours = address.businessHours,
+          phoneNumbers = addressPhones.filter { it.organisationAddressId == address.organisationAddressId }
+            .mapNotNull { link -> phones.find { it.organisationPhoneId == link.organisationPhoneId }?.toV2() },
+        )
+      },
+      createdBy = organisation.createdBy,
+      createdTime = organisation.createdTime,
+      updatedBy = organisation.updatedBy,
+      updatedTime = organisation.updatedTime,
+    )
+  }
+
+  @Transactional
+  fun deleteV2(organisationId: Long) {
+    if (!organisationRepository.existsById(organisationId)) {
+      throw EntityNotFoundException("Organisation with id $organisationId not found")
+    }
+    organisationAddressPhoneRepository.deleteAllByOrganisationId(organisationId)
+    organisationAddressEntityRepository.deleteAllByOrganisationId(organisationId)
+    organisationPhoneRepository.deleteAllByOrganisationId(organisationId)
+    organisationEmailRepository.deleteAllByOrganisationId(organisationId)
+    organisationWebAddressRepository.deleteAllByOrganisationId(organisationId)
+    organisationTypeRepository.deleteAllByOrganisationId(organisationId)
+    organisationRepository.deleteById(organisationId)
   }
 
   @Transactional
