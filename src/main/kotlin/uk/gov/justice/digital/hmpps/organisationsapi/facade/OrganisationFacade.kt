@@ -47,4 +47,6 @@ class OrganisationFacade(
   fun getOrganisationSummaryById(organisationId: Long): OrganisationSummary = organisationService.getOrganisationSummaryById(organisationId)
 
   fun search(request: OrganisationSearchRequest, pageable: Pageable): PagedModel<OrganisationSummary> = organisationService.search(request, pageable)
+
+  fun list(name: String?, pageable: Pageable): PagedModel<OrganisationSummary> = organisationService.list(name, pageable)
 }

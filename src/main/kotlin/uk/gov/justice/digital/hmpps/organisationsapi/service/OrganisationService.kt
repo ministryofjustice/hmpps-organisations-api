@@ -112,6 +112,8 @@ class OrganisationService(
 
   fun search(request: OrganisationSearchRequest, pageable: Pageable): PagedModel<OrganisationSummary> = organisationSearchRepository.search(request, pageable).toModel()
 
+  fun list(name: String?, pageable: Pageable): PagedModel<OrganisationSummary> = search(OrganisationSearchRequest(name = name?.trim().orEmpty()), pageable)
+
   @Transactional
   fun create(request: CreateOrganisationRequest): OrganisationDetails {
     val created = organisationRepository.saveAndFlush(

@@ -8,18 +8,26 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.security.SecurityRequirement
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
+import io.swagger.v3.oas.annotations.Parameter
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort.Direction
+import org.springframework.data.web.PageableDefault
+import org.springframework.data.web.PagedModel
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.digital.hmpps.organisationsapi.facade.OrganisationFacade
 import uk.gov.justice.digital.hmpps.organisationsapi.model.request.OrganisationV2CreateRequest
+import uk.gov.justice.digital.hmpps.organisationsapi.model.response.OrganisationSummary
 import uk.gov.justice.digital.hmpps.organisationsapi.model.response.OrganisationV2Details
 import uk.gov.justice.digital.hmpps.organisationsapi.swagger.AuthApiResponses
 import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
@@ -29,6 +37,27 @@ import uk.gov.justice.hmpps.kotlin.common.ErrorResponse
 @RequestMapping(value = ["organisation/v2"], produces = [MediaType.APPLICATION_JSON_VALUE])
 @AuthApiResponses
 class OrganisationV2Controller(private val organisationFacade: OrganisationFacade) {
+
+  @GetMapping
+  @Operation(
+    summary = "List organisations",
+    description = "Lists all organisations, optionally filtered by full or partial name. Results are paged and sorted by name.",
+    security = [SecurityRequirement(name = "bearer")],
+  )
+  @ApiResponses(
+    value = [
+      ApiResponse(responseCode = "200", description = "Organisations listed successfully. There may be no results."),
+    ],
+  )
+  @PreAuthorize("hasAnyRole('ROLE_ORGANISATIONS__R', 'ROLE_ORGANISATIONS__RW')")
+  fun listOrganisations(
+    @Parameter(description = "Full or partial name of the organisation. Omit to list all.", required = false)
+    @RequestParam(required = false)
+    name: String?,
+    @Parameter(description = "Pageable configurations", required = false)
+    @PageableDefault(size = 20, sort = ["organisationName"], direction = Direction.ASC)
+    pageable: Pageable,
+  ): PagedModel<OrganisationSummary> = organisationFacade.list(name, pageable)
 
   @PostMapping(consumes = [MediaType.APPLICATION_JSON_VALUE])
   @Operation(
