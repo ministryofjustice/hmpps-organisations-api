@@ -40,7 +40,6 @@ import uk.gov.justice.digital.hmpps.organisationsapi.repository.OrganisationSumm
 import uk.gov.justice.digital.hmpps.organisationsapi.repository.OrganisationTypeDetailsRepository
 import uk.gov.justice.digital.hmpps.organisationsapi.repository.OrganisationTypeRepository
 import uk.gov.justice.digital.hmpps.organisationsapi.repository.OrganisationWebAddressRepository
-import java.time.LocalDate
 
 @Service
 class OrganisationService(
@@ -220,6 +219,7 @@ class OrganisationService(
           countryCode = address.countryCode,
           startDate = address.startDate,
           endDate = address.endDate,
+          active = address.active,
           comments = address.comments,
           addressType = address.addressType,
           serviceAddress = address.serviceAddress,
@@ -353,7 +353,7 @@ class OrganisationService(
           comments = addressRequest.comments,
           startDate = addressRequest.startDate,
           endDate = addressRequest.endDate,
-          active = addressRequest.endDate == null || !addressRequest.endDate.isBefore(LocalDate.now()),
+          active = addressRequest.active,
           createdBy = request.createdBy,
           createdTime = request.createdTime,
           updatedBy = request.updatedBy,

@@ -162,6 +162,9 @@ data class OrganisationV2AddressRequest(
   @Schema(description = "Date this address stopped being valid", nullable = true)
   val endDate: LocalDate?,
 
+  @Schema(description = "Whether this address is active")
+  val active: Boolean,
+
   @Schema(description = "Address comments", nullable = true, maxLength = 240)
   @field:Size(max = 240, message = "comments must be <= 240 characters")
   val comments: String?,

@@ -443,6 +443,7 @@ class CreateOrganisationIntegrationTest : SecureApiIntegrationTestBase() {
           countryCode = "ENG",
           startDate = LocalDate.of(2016, 4, 1),
           endDate = null,
+          active = true,
           comments = "Address comments",
           addressType = "BUS",
           serviceAddress = true,
